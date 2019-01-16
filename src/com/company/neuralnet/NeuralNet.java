@@ -30,7 +30,7 @@ public class NeuralNet{
     //непосредственно обучение
     public static void Train(NeuralNet net)//backpropagation method
     {
-        final double threshold = 0.4;//порог ошибки
+        final double threshold = 0.2;//порог ошибки
         double[] temp_mses = new double[4];//массив для хранения ошибок итераций
         double temp_cost = 0;//текущее значение ошибки по эпохе
         do {
