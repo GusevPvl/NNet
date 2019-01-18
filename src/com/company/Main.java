@@ -9,7 +9,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        try {
+        /*try {
             DriverManager.registerDriver((Driver) Class.forName("com.mysql.jdbc.Driver").newInstance());
 
             StringBuilder url = new StringBuilder();
@@ -29,11 +29,11 @@ public class Main {
         } catch (SQLException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
             System.out.println(e.getMessage());
             System.out.println("Error");
-        }
+        }*/
 
-       /* NeuralNet newnet=new NeuralNet();
+        NeuralNet newnet=new NeuralNet();
         NeuralNet.Train(newnet);
-        NeuralNet.Test(newnet);*/
+        NeuralNet.Test(newnet);
 
 
 
