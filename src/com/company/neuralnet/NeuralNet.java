@@ -7,7 +7,7 @@ public class NeuralNet{
     public HiddenLayer hidden_layer1 = new HiddenLayer(4, 4, NeuronType.hidden, "hidden1"); //Инициализация скрытого слоя
     public OutputLayer output_layer = new OutputLayer(2, 4, NeuronType.output, "output"); //Ининциализация выходного слоя
     //массив для хранения выхода сети
-    public double[] fact = new double[2];//не ругайте за 2 пожалуйста
+    public double[] fact = new double[input_layer.error[1].length];
 
     //Конструктор:
 
