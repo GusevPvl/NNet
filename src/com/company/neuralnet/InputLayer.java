@@ -19,10 +19,13 @@ class InputLayer {
             {1, 1}
     };
     public double[][] error = new double[][]{
-            {0, 1},
-            {1, 0},
-            {1, 0},
-            {0, 1}
+            {0, 1, 0},
+            {1, 0, 1},
+            {1, 0, 1},
+            {0, 1, 1}
+    };
+    public String[] resultname = new String[]{
+            "xor","xand","or"
     };
 
     public double[][] getTrainset() {

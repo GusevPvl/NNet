@@ -6,12 +6,17 @@ import java.*;
 import com.microsoft.sqlserver.jdbc.SQLServerDriver;
 import java.io.File;
 
+import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 //Comment from home
 
 public class Main {
     public static void main(String[] args) {
 
-        Connection conn = null;
+      /*  Connection conn = null;
         String dbName = "NNDB";
         String serverip="192.168.2.227";
         String serverport="3306";
@@ -39,12 +44,12 @@ public class Main {
             System.out.println("Connection OK");
         } catch (Exception e) {
             e.printStackTrace();
-        }
+        }*/
 
-
-        /*NeuralNet newnet=new NeuralNet();
+        NeuralNet.ResetWeights();
+        NeuralNet newnet=new NeuralNet();
         NeuralNet.Train(newnet);
-        NeuralNet.Test(newnet);*/
+        NeuralNet.Test(newnet);
 
 
 

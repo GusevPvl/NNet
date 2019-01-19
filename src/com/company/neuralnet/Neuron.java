@@ -26,17 +26,17 @@ class Neuron {
     public void setInputs(double[] inputs) {
         this.inputs = inputs;
     }
-
+    //Метод вызова функции активации (инкапсуляция для разных функций активации)
     public double Output() {
-        return Activator(inputs, weights);
+        return Activator(inputs, weights); //Возвращение "активированного" значения
     }
 
-    private double Activator(double[] i, double[] w)//преобразования
+    private double Activator(double[] i, double[] w)//Вычисление "активированного" значения
     {
         double sum = 0;
         for (int l = 0; l < i.length; ++l)
-            sum += i[l] * w[l];//линейные
-        return Math.pow(1 + Math.exp(-sum), -1);//нелинейные
+            sum += i[l] * w[l];//Получение произведения входного значения и веса
+        return Math.pow(1 + Math.exp(-sum), -1);//Сигмоидальная функция активации
     }
 
     public double Derivativator(double outsignal) {

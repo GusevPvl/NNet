@@ -5,9 +5,9 @@ class OutputLayer extends Layer {
         super(non, nopn, nt, type);
     }
 
-    public void Recognize(NeuralNet net, Layer nextLayer) {
+    public void OutputCalculate(NeuralNet net, Layer nextLayer) {
         for (int i = 0; i < neurons.length; ++i)
-            net.fact[i] = neurons[i].Output();
+            net.fact[i] = neurons[i].Output(); //Запись выходных (фактических) значений сети
     }
 
     public double[] BackwardPass(double[] errors) {

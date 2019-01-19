@@ -6,10 +6,10 @@ class HiddenLayer extends Layer {
 
     }
 
-    public void Recognize(NeuralNet net, Layer nextLayer) {
-        double[] hidden_out = new double[neurons.length];
+    public void OutputCalculate(NeuralNet net, Layer nextLayer) {
+        double[] hidden_out = new double[neurons.length]; //Массив для выходных значений слоя
         for (int i = 0; i < neurons.length; ++i)
-            hidden_out[i] = neurons[i].Output();
+            hidden_out[i] = neurons[i].Output(); //Расчет выходных значений, Output - вызов функции активации
         nextLayer.Data(hidden_out);
     }
 

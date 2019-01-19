@@ -11,8 +11,8 @@ public class NetActions {
             for (int i = 0; i < net.input_layer.trainset.length; ++i) {
                 //прямой проход
                 net.hidden_layer.Data(net.input_layer.trainset[i]);
-                net.hidden_layer.Recognize(null, net.output_layer);
-                net.output_layer.Recognize(net, null);
+                net.hidden_layer.OutputCalculate(null, net.output_layer);
+                net.output_layer.OutputCalculate(net, null);
                 //вычисление ошибки по итерации
                 double[] errors = new double[net.input_layer.error[i].length];
                 for (int x = 0; x < errors.length; ++x)
@@ -36,8 +36,8 @@ public class NetActions {
     public static void Test(NeuralNet net) {
         for (int i = 0; i < net.input_layer.trainset.length; ++i) {
             net.hidden_layer.Data(net.input_layer.trainset[i]);
-            net.hidden_layer.Recognize(null, net.output_layer);
-            net.output_layer.Recognize(net, null);
+            net.hidden_layer.OutputCalculate(null, net.output_layer);
+            net.output_layer.OutputCalculate(net, null);
             for (int j = 0; j < net.fact.length; ++j)
                 System.out.println("Fact="+Double.toString(Math.round(net.fact[j])));
         }

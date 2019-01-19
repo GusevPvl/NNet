@@ -81,7 +81,7 @@ abstract class Layer {//type используется для связи с од�
         return weights;
     }
 
-    abstract public void Recognize(NeuralNet net, Layer nextLayer);//для прямых проходов
+    abstract public void OutputCalculate(NeuralNet net, Layer nextLayer);//для прямых проходов
 
-    abstract public double[] BackwardPass(double[] stuff);//и обратных
+    abstract public double[] BackwardPass(double[] stuff);//Проведение обратного распространения
 }
