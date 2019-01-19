@@ -7,13 +7,13 @@ import java.io.IOException;
 public class NeuralNet {
     //все слои сети
     InputLayer input_layer = new InputLayer(); //Инициализация входного слоя - задается отдельным классом
-    public HiddenLayer hidden_layer = new HiddenLayer(4, input_layer.trainset[1].length, NeuronType.hidden, "hidden"); //Инициализация скрытого слоя
+    public HiddenLayer hidden_layer = new HiddenLayer(200, input_layer.trainsetDB[1].length, NeuronType.hidden, "hidden"); //Инициализация скрытого слоя
 //    public HiddenLayer hidden_layer1 = new HiddenLayer(4, 4, NeuronType.hidden, "hidden1"); //Инициализация скрытого слоя
-    public OutputLayer output_layer = new OutputLayer(input_layer.error[1].length, 4, NeuronType.output, "output"); //Ининциализация выходного слоя
+    public OutputLayer output_layer = new OutputLayer(input_layer.errorDB[1].length, 200, NeuronType.output, "output"); //Ининциализация выходного слоя
 
     public HiddenLayer[] hidden_layers;
     //массив для хранения выхода сети (фактические значения) - размерность: количество выходных нейронов
-    public double[] fact = new double[input_layer.error[1].length];
+    public double[] fact = new double[input_layer.errorDB[1].length];
     //Стандартный конструктор
     public NeuralNet(){}
     //Конструктор для создания произвольного количества скрытых слоёв с заданным количеством нейронов
@@ -53,7 +53,7 @@ public class NeuralNet {
         File hiddenfile = new File("hidden.txt");
         File outputfile = new File("output.txt");
         try (FileWriter writer = new FileWriter(hiddenfile, false)) {
-            for (int l = 0; l < 8; ++l){
+            for (int l = 0; l < 16000; ++l){
                 writer.append(Double.toString(0.0));
                 writer.append('\n');
             }
@@ -62,7 +62,7 @@ public class NeuralNet {
             System.out.println(ex.getMessage());
         }
         try (FileWriter writer = new FileWriter(outputfile, false)) {
-            for (int l = 0; l < 12; ++l){
+            for (int l = 0; l < 800; ++l){
                 writer.append(Double.toString(0.0));
                 writer.append('\n');
             }
@@ -75,24 +75,24 @@ public class NeuralNet {
     public static void Train(NeuralNet net)//backpropagation method
     {
         final double threshold = 0.001;//порог ошибки
-        double[] temp_mses = new double[4];//массив для хранения ошибок итераций
+        double[] temp_mses = new double[net.input_layer.errorDB.length];//массив для хранения ошибок итераций
         double temp_cost = 0;//текущее значение ошибки по эпохе
         //Цикл до достижения указанного порога ошибки
         do {
             //Цикл по количеству "тренировочных" сетов
-            for (int i = 0; i < net.input_layer.trainset.length; ++i) {
+            for (int i = 0; i < net.input_layer.trainsetDB.length; ++i) {
                 //прямой проход
                 //Получение входных значений первым скрытым слоем (без фукции активации и без умножения на веса)
-                net.hidden_layer.Data(net.input_layer.trainset[i]);
+                net.hidden_layer.Data(net.input_layer.trainsetDB[i]);
                 //Расчет выходных значений слоёв и переача их на следующий слой без активации
                 net.hidden_layer.OutputCalculate(null, net.output_layer);
                 //net.hidden_layer1.OutputCalculate(net, net.output_layer);
                 //Вычисление выходных значений сети (запись в net.fact)
                 net.output_layer.OutputCalculate(net, null);
                 //вычисление ошибки по итерации
-                double[] errors = new double[net.input_layer.error[i].length];
+                double[] errors = new double[net.input_layer.errorDB[i].length];
                 for (int x = 0; x < errors.length; ++x)
-                    errors[x] = net.input_layer.error[i][x] - net.fact[x];
+                    errors[x] = net.input_layer.errorDB[i][x] - net.fact[x];
                 temp_mses[i] = net.GetMSE(errors);
                 //обратный проход и коррекция весов
                 double[] temp_gsums = net.output_layer.BackwardPass(errors); //Распространение ошибки выходного слоя на входные веса
@@ -112,12 +112,14 @@ public class NeuralNet {
 
     //тестирование сети
     public static void Test(NeuralNet net) {
-        for (int i = 0; i < net.input_layer.trainset.length; ++i) {
-            net.hidden_layer.Data(net.input_layer.trainset[i]);
+        System.out.println("Результаты тестирования сети"+net.input_layer.trainset.length);
+        for (int i = 0; i < net.input_layer.trainsetDB.length; ++i) {
+            net.hidden_layer.Data(net.input_layer.trainsetDB[i]);
             net.hidden_layer.OutputCalculate(null, net.output_layer);
             net.output_layer.OutputCalculate(net, null);
             for (int j = 0; j < net.fact.length; ++j)
-                System.out.println("Fact "+net.input_layer.resultname[j]+ " =" + Double.toString(Math.round(net.fact[j])));
+                System.out.print(net.fact[j]+" ");
+            System.out.println();
         }
     }
 }

@@ -2,17 +2,6 @@ package com.company.neuralnet;
 
 
 import java.sql.*;
-import java.*;
-
-import com.microsoft.sqlserver.jdbc.SQLServerDriver;
-
-import java.io.File;
-
-import java.io.*;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 
 enum MemoryMode {GET, SET}
 
@@ -36,7 +25,7 @@ class InputLayer {
     };
 
     //Тренировочный сет для загрузки из БД
-    public double[][] transientDB;
+    public double[][] trainsetDB;
 
     //Массив результатов для загрузки из БД
     public double[][] errorDB;
@@ -68,18 +57,18 @@ class InputLayer {
             result = stmt.executeQuery("SELECT * FROM ExpirementInputs");
             int columnnum = 0; //Поле для получение количества столбцов для создания массива тренировочного сета
             columnnum = result.getMetaData().getColumnCount()-1; //Получение количества столбцов для создания массива тренировочного сета (9столбец - номер эксперимента)
-            transientDB = new double[rowsnum][columnnum];//Создание тренировочного сета количество строк * количество столбцов
+            trainsetDB = new double[rowsnum][columnnum];//Создание тренировочного сета количество строк * количество столбцов
             //Считывание данных тренировочного сета
             while (result.next()) {
                 for (int i = 0; i < columnnum; i++) {
-                    transientDB[result.getRow()-1][i] = result.getInt(i+1); //Получение данных построчно (кроме 9 столбца)
+                    trainsetDB[result.getRow()-1][i] = result.getInt(i+1); //Получение данных построчно (кроме 9 столбца)
                 }
                 System.out.println(result.getRow());
             }
             //Вывод trainsetDB для проверки
             for (int i=0;i<rowsnum;i++) {
                 for (int j = 0; j < columnnum; j++)
-                    System.out.print(transientDB[i][j]);
+                    System.out.print(trainsetDB[i][j]);
                 System.out.println();
             }
 
