@@ -16,13 +16,12 @@ public class NeuralNet {
     public double[] fact = new double[input_layer.error[1].length];
     //Стандартный конструктор
     public NeuralNet(){}
-    //Конструктор:
+    //Конструктор для создания произвольного количества скрытых слоёв с заданным количеством нейронов
     public NeuralNet(int HiddenLayersNumber){
         for (int i=0;i<HiddenLayersNumber;i++){
 
         }
-
-//Для создания весов скрытых слоев
+        //Для создания весов скрытых слоев
         try (FileWriter writer = new FileWriter("pikpik.txt", false)) {
 
             writer.append('\n');
