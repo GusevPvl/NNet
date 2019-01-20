@@ -18,12 +18,22 @@ public class Main {
 
 
 
-        //NeuralNet.ResetWeights();
+        NeuralNet.ResetWeights();
         NeuralNet newnet=new NeuralNet();
-        //NeuralNet.Train(newnet);
-        NeuralNet.Test(newnet);
-
-
+        NeuralNet.Train(newnet);
+        //NeuralNet.Test(newnet);
+        /*try {
+            double startTime = System.currentTimeMillis();
+            Thread.sleep(2152);
+            long stopTime = System.currentTimeMillis();
+            double resulttime= (double)(stopTime-startTime)/1000;//(stopTime-startTime)/1000;
+            int hours = (int) resulttime/3600 ;
+            int minutes = (int)(resulttime%3600)/60;
+            double seconds = (double)((resulttime%3600)%60);
+            java.text.DecimalFormat numberFormat = new java.text.DecimalFormat("#.000");
+            System.out.println(hours+":"+minutes+":"+numberFormat.format(seconds)+"   "+resulttime);
+        }
+        catch (InterruptedException ex){}*/
 
         System.out.println("Ok");
     }
