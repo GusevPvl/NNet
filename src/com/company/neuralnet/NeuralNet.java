@@ -11,7 +11,7 @@ public class NeuralNet {
 
     public HiddenLayer[] hidden_layers;
     //массив для хранения выхода сети (фактические значения) - размерность: количество выходных нейронов
-    public double[] fact = new double[input_layer.errorDB[1].length];
+    public double[] fact;// = new double[input_layer.errorDB[1].length];
 
     //Стандартный конструктор
     public NeuralNet() {
@@ -19,14 +19,19 @@ public class NeuralNet {
         input_layer = new InputLayer(); //Инициализация входного слоя - задается отдельным классом
         hidden_layer = new HiddenLayer(200, input_layer.trainsetDB[1].length, NeuronType.hidden, "hidden"); //Инициализация скрытого слоя
         output_layer = new OutputLayer(input_layer.errorDB[1].length, 200, NeuronType.output, "output"); //Ининциализация выходного слоя
+        fact = new double[input_layer.errorDB[1].length];//Инициализация массива фактических значений
     }
 
     //Конструктор для создания произвольного количества скрытых слоёв с заданным количеством нейронов
     public NeuralNet(String SettingsFile, int HiddenLayersNumber, String mode) {
+
         input_layer = new InputLayer(); //Инициализация входного слоя - задается отдельным классом
+        fact = new double[input_layer.errorDB[1].length];//Инициализация массива фактических значений
         hidden_layers = new HiddenLayer[HiddenLayersNumber]; //Инициализация массива скрытых слоев
-        File wfile = new File(SettingsFile);
-        try (FileReader reader = new FileReader(wfile)) {
+        if (mode == "Train")
+            WeightsFilesInitialize(SettingsFile, HiddenLayersNumber);
+        File settings = new File(SettingsFile);
+        try (FileReader reader = new FileReader(settings)) {
             BufferedReader br = new BufferedReader(reader);
             String line;
             line = br.readLine(); //Считывание количества нейронов 1 скрытого слоя
@@ -35,23 +40,12 @@ public class NeuralNet {
             //Создание остальных скрытых слоев
             for (int i = 1; i < HiddenLayersNumber; i++) {
                 line = br.readLine();
-                hidden_layers[i] = new HiddenLayer(Integer.valueOf(line), hidden_layers[i - 1].numofneurons, NeuronType.hidden, "hidden"+i);
+                hidden_layers[i] = new HiddenLayer(Integer.valueOf(line), hidden_layers[i - 1].numofneurons, NeuronType.hidden, "hidden" + i);
             }
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
         }
-        output_layer = new OutputLayer(input_layer.errorDB[1].length, hidden_layers[hidden_layers.length].numofneurons, NeuronType.output, "output"); //Ининциализация выходного слоя
-
-        //Для создания весов скрытых слоев
-        try (FileWriter writer = new FileWriter("pikpik.txt", false)) {
-
-            writer.append('\n');
-            writer.append("dasdasd");
-            writer.flush();
-        } catch (IOException ex) {
-
-            System.out.println(ex.getMessage());
-        }
+        output_layer = new OutputLayer(input_layer.errorDB[1].length, hidden_layers[hidden_layers.length - 1].numofneurons, NeuronType.output, "output"); //Ининциализация выходного слоя
     }
 
     //ошибка одной итерации обучения
@@ -95,35 +89,43 @@ public class NeuralNet {
     }
 
     //непосредственно обучение
-    public static void Train(NeuralNet net)//backpropagation method
+    public void Train()//backpropagation method
     {
         long startTrainTime = System.currentTimeMillis(); //Запись времени начала обчения
         final double threshold = 0.001;//порог ошибки
-        double[] temp_mses = new double[net.input_layer.errorDB.length];//массив для хранения ошибок итераций
+        double[] temp_mses = new double[input_layer.errorDB.length];//массив для хранения ошибок итераций
         double temp_cost = 0;//текущее значение ошибки по эпохе
         //Цикл до достижения указанного порога ошибки
         do {
             //Цикл по количеству "тренировочных" сетов
-            for (int i = 0; i < net.input_layer.trainsetDB.length; ++i) {
+            for (int i = 0; i < input_layer.trainsetDB.length; ++i) {
                 //прямой проход
                 //Получение входных значений первым скрытым слоем (без фукции активации и без умножения на веса)
-                net.hidden_layer.Data(net.input_layer.trainsetDB[i]);
-                //Расчет выходных значений слоёв и переача их на следующий слой без активации
-                net.hidden_layer.OutputCalculate(null, net.output_layer);
-                //net.hidden_layer1.OutputCalculate(net, net.output_layer);
+                hidden_layers[0].Data(input_layer.trainsetDB[i]);
+                //Расчет с проходом по скрытым слоям
+                for (int j = 1; j < hidden_layers.length; j++) {
+                    hidden_layers[j - 1].OutputCalculate(this, hidden_layers[j]);
+                }
+                hidden_layers[hidden_layers.length - 1].OutputCalculate(this, output_layer);
                 //Вычисление выходных значений сети (запись в net.fact)
-                net.output_layer.OutputCalculate(net, null);
+                output_layer.OutputCalculate(this, null);
                 //вычисление ошибки по итерации
-                double[] errors = new double[net.input_layer.errorDB[i].length];
+                double[] errors = new double[input_layer.errorDB[i].length];
                 for (int x = 0; x < errors.length; ++x)
-                    errors[x] = net.input_layer.errorDB[i][x] - net.fact[x];
-                temp_mses[i] = net.GetMSE(errors);
+                    errors[x] = input_layer.errorDB[i][x] - fact[x];
+                temp_mses[i] = GetMSE(errors);
                 //обратный проход и коррекция весов
-                double[] temp_gsums = net.output_layer.BackwardPass(errors); //Распространение ошибки выходного слоя на входные веса
-                //double[] temp_gsums1 = net.hidden_layer1.BackwardPass(temp_gsums);
-                net.hidden_layer.BackwardPass(temp_gsums);
+                double[] temp_gsums = output_layer.BackwardPass(errors); //Распространение ошибки выходного слоя на входные веса
+                //Коррекция весов по скрытым слоям
+                //Как минимум 1 скрытый слой существует
+                double[] temp_gsums_hidden = hidden_layers[hidden_layers.length - 1].BackwardPass(temp_gsums);
+                if (hidden_layers.length > 1) {
+                    for (int j = hidden_layers.length - 2; j >= 0; j--) {
+                        temp_gsums_hidden = hidden_layers[j].BackwardPass(temp_gsums_hidden);
+                    }
+                }
             }
-            temp_cost = net.GetCost(temp_mses);//вычисление ошибки по эпохе
+            temp_cost = GetCost(temp_mses);//вычисление ошибки по эпохе
             //debugging
             System.out.println(Double.toString(temp_cost));
             //WriteLine($"{temp_cost}");
@@ -132,20 +134,27 @@ public class NeuralNet {
         //Запись результатов обучения в файл
         WriteResultsToFile(MillisToHours(stopTrainTime - startTrainTime));
         //загрузка скорректированных весов в "память"
-        net.hidden_layer.WeightInitialize(MemoryMode.SET, "hidden");
-        //net.hidden_layer1.WeightInitialize(MemoryMode.SET, "hidden1");
-        net.output_layer.WeightInitialize(MemoryMode.SET, "output");
+        //Запись весов скрытых слоев
+        hidden_layers[0].WeightInitialize(MemoryMode.SET, "hidden");
+        for(int i=1;i< hidden_layers.length;i++)
+            hidden_layers[i].WeightInitialize(MemoryMode.SET, "hidden"+i);
+        //Запись весов выходного слоя
+        output_layer.WeightInitialize(MemoryMode.SET, "output");
     }
 
     //тестирование сети
-    public static void Test(NeuralNet net) {
-        System.out.println("Результаты тестирования сети" + net.input_layer.trainset.length);
-        for (int i = 0; i < net.input_layer.trainsetDB.length; ++i) {
-            net.hidden_layer.Data(net.input_layer.trainsetDB[i]);
-            net.hidden_layer.OutputCalculate(null, net.output_layer);
-            net.output_layer.OutputCalculate(net, null);
-            for (int j = 0; j < net.fact.length; ++j)
-                System.out.print(net.fact[j] + " ");
+    public void Test() {
+        System.out.println("Результаты тестирования сети" + input_layer.trainset.length);
+        for (int i = 0; i < input_layer.trainsetDB.length; ++i) {
+            hidden_layers[0].Data(input_layer.trainsetDB[i]); //Как минимум 1 скрытый слой существует
+            //Расчет с проходом по скрытым слоям
+            for (int j = 1; j < hidden_layers.length; j++) {
+                hidden_layers[j - 1].OutputCalculate(this, hidden_layers[j]);
+            }
+            hidden_layers[hidden_layers.length - 1].OutputCalculate(this, output_layer);
+            output_layer.OutputCalculate(this, null);
+            for (int j = 0; j < fact.length; ++j)
+                System.out.print(fact[j] + " ");
             System.out.println();
         }
     }
@@ -174,7 +183,55 @@ public class NeuralNet {
     }
 
     //Метод создания файлов с весами для слоев сети
-    private void WeightsFilesInitialize(String SettingsFile, int HiddenLayersNumber){
+    private void WeightsFilesInitialize(String SettingsFile, int HiddenLayersNumber) {
+
+        int prevLayerNeurons = 0;//Количество нейронов предыдущего слоя
+        File settings = new File(SettingsFile);
+        try (FileReader reader = new FileReader(settings)) {
+            BufferedReader br = new BufferedReader(reader);
+            String line;
+            line = br.readLine(); //Считывание количества нейронов 1 скрытого слоя
+            //Как минимум 1 скрытый слой всегда задается
+            File hiddenfile = new File("hidden.txt");
+            try (FileWriter writer = new FileWriter(hiddenfile, false)) {
+                for (int l = 0; l < Integer.valueOf(line) * input_layer.trainsetDB[1].length; ++l) {
+                    writer.append(Double.toString(0.0));
+                    writer.append('\n');
+                }
+                writer.flush();
+                prevLayerNeurons = Integer.valueOf(line);
+            } catch (IOException ex) {
+                System.out.println(ex.getMessage());
+            }
+            //Задание количества нейронов остальных скрытых слоёв
+            for (int i = 1; i < HiddenLayersNumber; i++) {
+                line = br.readLine();//Считывание количества нейронов остальных скрытых слоев
+                hiddenfile = new File("hidden" + i + ".txt");
+                try (FileWriter writer = new FileWriter(hiddenfile, false)) {
+                    for (int l = 0; l < Integer.valueOf(line) * prevLayerNeurons; ++l) {
+                        writer.append(Double.toString(0.0));
+                        writer.append('\n');
+                    }
+                    writer.flush();
+                    prevLayerNeurons = Integer.valueOf(line);
+                } catch (IOException ex) {
+                    System.out.println(ex.getMessage());
+                }
+            }
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
+        }
+        //Создание файла для выходного слоя
+        File outputfile = new File("output.txt");
+        try (FileWriter writer = new FileWriter(outputfile, false)) {
+            for (int l = 0; l < prevLayerNeurons * input_layer.errorDB[1].length; ++l) {
+                writer.append(Double.toString(0.0));
+                writer.append('\n');
+            }
+            writer.flush();
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
+        }
 
     }
 }
