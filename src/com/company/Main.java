@@ -16,10 +16,10 @@ import java.io.IOException;
 public class Main {
     public static void main(String[] args) {
         //Запуск сети
-        NeuralNet.ResetWeights();
+        //NeuralNet.ResetWeights();
         NeuralNet newnet=new NeuralNet();
-        NeuralNet.Train(newnet);
-        //NeuralNet.Test(newnet);
+        //NeuralNet.Train(newnet);
+        NeuralNet.Test(newnet);
         /*try {
             double startTime = System.currentTimeMillis();
             Thread.sleep(2152);
