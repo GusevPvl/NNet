@@ -1,15 +1,13 @@
 package com.company.neuralnet;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 
 public class NeuralNet {
-    //все слои сети
-    InputLayer input_layer = new InputLayer(); //Инициализация входного слоя - задается отдельным классом
-    public HiddenLayer hidden_layer = new HiddenLayer(200, input_layer.trainsetDB[1].length, NeuronType.hidden, "hidden"); //Инициализация скрытого слоя
+    //все слои сети, инициализация в конструкторах
+    InputLayer input_layer;// = new InputLayer(); //Инициализация входного слоя - задается отдельным классом
+    public HiddenLayer hidden_layer;// = new HiddenLayer(200, input_layer.trainsetDB[1].length, NeuronType.hidden, "hidden"); //Инициализация скрытого слоя
     //public HiddenLayer hidden_layer1 = new HiddenLayer(4, 4, NeuronType.hidden, "hidden1"); //Инициализация скрытого слоя
-    public OutputLayer output_layer = new OutputLayer(input_layer.errorDB[1].length, 200, NeuronType.output, "output"); //Ининциализация выходного слоя
+    public OutputLayer output_layer;// = new OutputLayer(input_layer.errorDB[1].length, 200, NeuronType.output, "output"); //Ининциализация выходного слоя
 
     public HiddenLayer[] hidden_layers;
     //массив для хранения выхода сети (фактические значения) - размерность: количество выходных нейронов
@@ -17,13 +15,33 @@ public class NeuralNet {
 
     //Стандартный конструктор
     public NeuralNet() {
+        //все слои сети
+        input_layer = new InputLayer(); //Инициализация входного слоя - задается отдельным классом
+        hidden_layer = new HiddenLayer(200, input_layer.trainsetDB[1].length, NeuronType.hidden, "hidden"); //Инициализация скрытого слоя
+        output_layer = new OutputLayer(input_layer.errorDB[1].length, 200, NeuronType.output, "output"); //Ининциализация выходного слоя
     }
 
     //Конструктор для создания произвольного количества скрытых слоёв с заданным количеством нейронов
-    public NeuralNet(int HiddenLayersNumber) {
-        for (int i = 0; i < HiddenLayersNumber; i++) {
-
+    public NeuralNet(String SettingsFile, int HiddenLayersNumber, String mode) {
+        input_layer = new InputLayer(); //Инициализация входного слоя - задается отдельным классом
+        hidden_layers = new HiddenLayer[HiddenLayersNumber]; //Инициализация массива скрытых слоев
+        File wfile = new File(SettingsFile);
+        try (FileReader reader = new FileReader(wfile)) {
+            BufferedReader br = new BufferedReader(reader);
+            String line;
+            line = br.readLine(); //Считывание количества нейронов 1 скрытого слоя
+            //Создание первого скрытого слоя, количество предыдущиъ нейронов - количество нейронов входного слоя
+            hidden_layers[0] = new HiddenLayer(Integer.valueOf(line), input_layer.trainsetDB[1].length, NeuronType.hidden, "hidden");
+            //Создание остальных скрытых слоев
+            for (int i = 1; i < HiddenLayersNumber; i++) {
+                line = br.readLine();
+                hidden_layers[i] = new HiddenLayer(Integer.valueOf(line), hidden_layers[i - 1].numofneurons, NeuronType.hidden, "hidden"+i);
+            }
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
         }
+        output_layer = new OutputLayer(input_layer.errorDB[1].length, hidden_layers[hidden_layers.length].numofneurons, NeuronType.output, "output"); //Ининциализация выходного слоя
+
         //Для создания весов скрытых слоев
         try (FileWriter writer = new FileWriter("pikpik.txt", false)) {
 
@@ -112,7 +130,7 @@ public class NeuralNet {
         } while (temp_cost > threshold);
         long stopTrainTime = System.currentTimeMillis(); //Запись времени завершения обучения
         //Запись результатов обучения в файл
-        WriteResultsToFile(MillisToHours(stopTrainTime-startTrainTime));
+        WriteResultsToFile(MillisToHours(stopTrainTime - startTrainTime));
         //загрузка скорректированных весов в "память"
         net.hidden_layer.WeightInitialize(MemoryMode.SET, "hidden");
         //net.hidden_layer1.WeightInitialize(MemoryMode.SET, "hidden1");
@@ -131,6 +149,7 @@ public class NeuralNet {
             System.out.println();
         }
     }
+
     //Метод преобразования миллисекунд в ЧЧ:ММ:СС.ССС
     private static String MillisToHours(long millis) {
         String returntext;
@@ -142,15 +161,21 @@ public class NeuralNet {
         returntext = hours + ":" + minutes + ":" + numberFormat.format(seconds) + millis;
         return returntext;
     }
+
     //Метод записи результатов обучения сети
-    private static void WriteResultsToFile(String text){
+    private static void WriteResultsToFile(String text) {
         File resultfile = new File("result.txt");
         try (FileWriter writer = new FileWriter(resultfile, false)) {
-            writer.append("Время обучения НС: "+text);
+            writer.append("Время обучения НС: " + text);
             writer.flush();
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
         }
+    }
+
+    //Метод создания файлов с весами для слоев сети
+    private void WeightsFilesInitialize(String SettingsFile, int HiddenLayersNumber){
+
     }
 }
 
