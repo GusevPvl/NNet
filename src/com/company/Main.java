@@ -10,9 +10,13 @@ public class Main {
         //NeuralNet.Train(newnet);
         //NeuralNet.Test(newnet);
         //newnet.Test();
-        NeuralNet nnet=new NeuralNet("NNetSettings.txt", 1,"Train");
-        nnet.Train();
+
+
+        //Запуск по новому
+        NeuralNet nnet=new NeuralNet("NNetSettings.txt", 1,"Tr");
+        //nnet.Train();
         nnet.Test();
+        //NNExperiments.startExp("Expirements\\ExpirementParams.txt");
 
         System.out.println("Ok");
     }

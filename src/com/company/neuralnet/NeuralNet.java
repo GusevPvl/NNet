@@ -1,6 +1,10 @@
 package com.company.neuralnet;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 
 public class NeuralNet {
     //все слои сети, инициализация в конструкторах
@@ -25,6 +29,9 @@ public class NeuralNet {
     //Конструктор для создания произвольного количества скрытых слоёв с заданным количеством нейронов
     public NeuralNet(String SettingsFile, int HiddenLayersNumber, String mode) {
 
+        /*Path path = Paths.get("./big_file.txt");
+        List<String> list1 = Files.readAllLines(path);*/
+
         input_layer = new InputLayer(); //Инициализация входного слоя - задается отдельным классом
         fact = new double[input_layer.errorDB[1].length];//Инициализация массива фактических значений
         hidden_layers = new HiddenLayer[HiddenLayersNumber]; //Инициализация массива скрытых слоев
@@ -32,6 +39,7 @@ public class NeuralNet {
             WeightsFilesInitialize(SettingsFile, HiddenLayersNumber);
         File settings = new File(SettingsFile);
         try (FileReader reader = new FileReader(settings)) {
+
             BufferedReader br = new BufferedReader(reader);
             String line;
             line = br.readLine(); //Считывание количества нейронов 1 скрытого слоя
