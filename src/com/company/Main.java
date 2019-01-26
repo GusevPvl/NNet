@@ -72,7 +72,7 @@ public class Main {
         }*/
 
         //Запуск по новому
-        //NeuralNet nnet=new NeuralNet("NNetSettings.txt", "Train");
+        //NeuralNet nnet=new NeuralNet("NNetSettings.txt", "Tr");
         //nnet.Train();
         //nnet.Test();
         NNExperiments.startExp("Expirements\\ExpirementParams.txt");

@@ -143,8 +143,6 @@ public class NeuralNet {
             }
         } while (temp_cost > threshold);
         long stopTrainTime = System.currentTimeMillis(); //Запись времени завершения обучения
-        //Запись результатов обучения в файл
-        WriteResultsToFile(MillisToHours(stopTrainTime - startTrainTime), Double.toString(temp_cost));
         //загрузка скорректированных весов в "память"
         //Запись весов скрытых слоев
         hidden_layers[0].WeightInitialize(MemoryMode.SET, "hidden");
@@ -152,6 +150,9 @@ public class NeuralNet {
             hidden_layers[i].WeightInitialize(MemoryMode.SET, "hidden" + i);
         //Запись весов выходного слоя
         output_layer.WeightInitialize(MemoryMode.SET, "output");
+
+        //Запись результатов обучения в файл
+        WriteResultsToFile(MillisToHours(stopTrainTime - startTrainTime), Double.toString(temp_cost));
     }
 
     //тестирование сети
