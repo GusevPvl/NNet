@@ -20,7 +20,7 @@ abstract class Layer {//type используется для связи с од�
             double[] temp_weights = new double[nopn];
             for (int j = 0; j < nopn; ++j)
                 temp_weights[j] = Weights[i][j];
-            neurons[i] = new Neuron(null, temp_weights, nt);//про подачу null на входы ниже
+            neurons[i] = new Neuron(null, temp_weights, nt);
         }
     }
 
@@ -50,8 +50,7 @@ abstract class Layer {//type используется для связи с од�
             case GET:
                 try (FileReader reader = new FileReader(wfile)) {
                     BufferedReader br = new BufferedReader(reader);
-                    // считаем сначала первую строку
-                    String line;;
+                    String line;
 
                     for (int l = 0; l < weights.length; ++l)
                         for (int k = 0; k < weights[0].length; ++k) {

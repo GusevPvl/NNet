@@ -1,5 +1,12 @@
 package com.company.neuralnet;
 
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -40,8 +47,7 @@ public class NeuralNet {
             //Создание первого скрытого слоя, количество предыдущиъ нейронов - количество нейронов входного слоя
             hidden_layers[0] = new HiddenLayer(Integer.valueOf(NeuronsOnHiddenLayers.get(0)), input_layer.trainsetDB[1].length, NeuronType.hidden, "hidden");
             //Создание остальных скрытых слоев
-            for (int i=1;i<NeuronsOnHiddenLayers.size();i++)
-            {
+            for (int i = 1; i < NeuronsOnHiddenLayers.size(); i++) {
                 hidden_layers[i] = new HiddenLayer(Integer.valueOf(NeuronsOnHiddenLayers.get(i)), hidden_layers[i - 1].numofneurons, NeuronType.hidden, "hidden" + i);
             }
         } catch (IOException ex) {
@@ -131,7 +137,7 @@ public class NeuralNet {
             //debugging
             System.out.println(Double.toString(temp_cost));
             //Установка предельного времени обучения сети
-            if ((System.currentTimeMillis()-startTrainTime)>60000){
+            if ((System.currentTimeMillis() - startTrainTime) > 60000) {
                 System.out.println("Превышено время обучения");
                 break;
             }
@@ -142,8 +148,8 @@ public class NeuralNet {
         //загрузка скорректированных весов в "память"
         //Запись весов скрытых слоев
         hidden_layers[0].WeightInitialize(MemoryMode.SET, "hidden");
-        for(int i=1;i< hidden_layers.length;i++)
-            hidden_layers[i].WeightInitialize(MemoryMode.SET, "hidden"+i);
+        for (int i = 1; i < hidden_layers.length; i++)
+            hidden_layers[i].WeightInitialize(MemoryMode.SET, "hidden" + i);
         //Запись весов выходного слоя
         output_layer.WeightInitialize(MemoryMode.SET, "output");
     }
@@ -180,14 +186,76 @@ public class NeuralNet {
     //Метод записи результатов обучения сети
     private void WriteResultsToFile(String text, String error) {
         //Запись результатов в таблицу Excel
+        Workbook wb = new HSSFWorkbook();
+        //Попытка открыть файл
+        try {
+            POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream("Expirements\\ExpirementResults.xls"));
+            wb = new HSSFWorkbook(fs);
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        //Открытие листа для записи основных результатов
+        Sheet sheet = ((HSSFWorkbook) wb).getSheet("TotalResult");
+        //Вычисление последнего занятого столбца в листе с основными результатами
+        int rownum = 0;
+        for (Row row : sheet) {
+            rownum = row.getRowNum();
+        }
+        //Создание названия эксперимента
+        String expName = "";
+        //Цикл для создания названия файла с результатами
+        for (int i = 0; i < hidden_layers.length; i++) {
+            expName += "_" + hidden_layers[i].numofneurons;
+        }
+        Row row = sheet.createRow(rownum + 1);
+        Cell cell = row.createCell(0);
+        cell.setCellValue(expName);
+        cell = row.createCell(1);
+        cell.setCellValue(text);
+        cell = row.createCell(2);
+        cell.setCellValue(error);
+        //Запись весов скрытых слоев
+        Sheet expSheet = wb.createSheet(expName);
+        int rowsNum = 0;
+        //Вычисление количества строк, необходимых для записи
+        for (int i = 0; i < hidden_layers.length; i++) {
+            if (hidden_layers[i].numofneurons * hidden_layers[i].numofprevneurons > rowsNum)
+                rowsNum = hidden_layers[i].numofneurons * hidden_layers[i].numofprevneurons;
+        }
+        Row expRow;
+        Cell expCell;
+        //Создание строк для записи весов
+        for (int i = 0; i < rowsNum; i++)
+            expRow = expSheet.createRow(i);
+        int rowCount=0;
+        //Проход по всем скрытым слоям
+        for (int i = 0; i < hidden_layers.length; i++)
+            //Проход по всем нейронам
+            for(int j=0;j<hidden_layers[i].numofneurons;j++)
+                //Проход по всем весам (нейроны*количество предшествующих нейронов)
+                for (int k=0;k<hidden_layers[i].numofprevneurons;k++){
+                    expRow = expSheet.getRow(rowCount);
+                    expCell = expRow.createCell(i);
+                    expCell.setCellValue(hidden_layers[i].neurons[j].weights[k]);
+                    rowCount++;
+                }
+        //Попытка записи результатов в файл
+        try {
+            FileOutputStream fileOut = new FileOutputStream("Expirements\\ExpirementResults.xls");
+            wb.write(fileOut);
+            fileOut.close();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
 
         //Запись результатов в текстовые файлы
-        String fileName="Expirements\\result\\result";
+        String fileName = "Expirements\\result\\result";
         //Цикл для создания названия файла с результатами
-        for (int i=0;i<hidden_layers.length;i++){
-            fileName+="_"+hidden_layers[i].numofneurons;
+        for (int i = 0; i < hidden_layers.length; i++) {
+            fileName += "_" + hidden_layers[i].numofneurons;
         }
-        fileName+=".txt";
+        fileName += ".txt";
         File resultfile = new File(fileName);
         try (FileWriter writer = new FileWriter(resultfile, false)) {
             writer.append("Время обучения НС: " + text + "   \n");

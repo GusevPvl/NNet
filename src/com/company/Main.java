@@ -3,9 +3,12 @@ package com.company;
 import com.company.neuralnet.*;
 
 
+import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.util.CellReference;
+
 
 import java.util.Map;
 import java.util.HashMap;
@@ -28,27 +31,31 @@ import java.util.ListIterator;
 
 public class Main {
     public static void main(String[] args) {
-        Workbook wb = new HSSFWorkbook();
+        /*Workbook wb = new HSSFWorkbook();
         try {
             POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream("wb.xls"));
             wb = new HSSFWorkbook(fs);
 
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
 
         }
+        Sheet sheet = ((HSSFWorkbook) wb).getSheetAt(0);
+        int rownum=0;
+        for (Row row : sheet) {
+            rownum=row.getRowNum();
+        }
+        Row row;//=sheet.createRow(rownum+1);
+        row=sheet.getRow(10);
+        Cell cell = row.createCell(0);
+        cell.setCellValue("Время:");
 
-        Sheet sheet1 = wb.createSheet("new sheet");
-        Sheet sheet2 = wb.createSheet("second sheet");
-        //if(args.length > 0 && args[0].equals("-xls")) wb = new HSSFWorkbook();
         try {
             FileOutputStream fileOut = new FileOutputStream("wb.xls");
             wb.write(fileOut);
             fileOut.close();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             //Обработка ошибки
-        }
+        }*/
 
 
         /*List<String> list1;
@@ -65,10 +72,10 @@ public class Main {
         }*/
 
         //Запуск по новому
-        /*NeuralNet nnet=new NeuralNet("NNetSettings.txt", 1,"Train");
-        nnet.Train();
-        nnet.Test();*/
-        //NNExperiments.startExp("Expirements\\ExpirementParams.txt");
+        //NeuralNet nnet=new NeuralNet("NNetSettings.txt", "Train");
+        //nnet.Train();
+        //nnet.Test();
+        NNExperiments.startExp("Expirements\\ExpirementParams.txt");
 
         System.out.println("Ok");
     }

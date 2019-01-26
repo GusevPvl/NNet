@@ -1,6 +1,6 @@
 minHiddenLayers:1
-maxHiddenLayers:2
+maxHiddenLayers:1
 minNeuronOnLayer:100
 maxNeuronOnLayer:200
 stepHiddenLayers:1
-stepNeuronOnLayer:50
+stepNeuronOnLayer:10
