@@ -27,28 +27,22 @@ public class NeuralNet {
     }
 
     //Конструктор для создания произвольного количества скрытых слоёв с заданным количеством нейронов
-    public NeuralNet(String SettingsFile, int HiddenLayersNumber, String mode) {
-
-        /*Path path = Paths.get("./big_file.txt");
-        List<String> list1 = Files.readAllLines(path);*/
-
+    public NeuralNet(String SettingsFile, String mode) {
         input_layer = new InputLayer(); //Инициализация входного слоя - задается отдельным классом
         fact = new double[input_layer.errorDB[1].length];//Инициализация массива фактических значений
-        hidden_layers = new HiddenLayer[HiddenLayersNumber]; //Инициализация массива скрытых слоев
-        if (mode == "Train")
-            WeightsFilesInitialize(SettingsFile, HiddenLayersNumber);
-        File settings = new File(SettingsFile);
-        try (FileReader reader = new FileReader(settings)) {
-
-            BufferedReader br = new BufferedReader(reader);
-            String line;
-            line = br.readLine(); //Считывание количества нейронов 1 скрытого слоя
+        List<String> NeuronsOnHiddenLayers;
+        Path path = Paths.get(SettingsFile);
+        try {
+            NeuronsOnHiddenLayers = Files.readAllLines(path);
+            hidden_layers = new HiddenLayer[NeuronsOnHiddenLayers.size()]; //Инициализация массива скрытых слоев
+            if (mode == "Train")
+                WeightsFilesInitialize(SettingsFile, NeuronsOnHiddenLayers.size());
             //Создание первого скрытого слоя, количество предыдущиъ нейронов - количество нейронов входного слоя
-            hidden_layers[0] = new HiddenLayer(Integer.valueOf(line), input_layer.trainsetDB[1].length, NeuronType.hidden, "hidden");
+            hidden_layers[0] = new HiddenLayer(Integer.valueOf(NeuronsOnHiddenLayers.get(0)), input_layer.trainsetDB[1].length, NeuronType.hidden, "hidden");
             //Создание остальных скрытых слоев
-            for (int i = 1; i < HiddenLayersNumber; i++) {
-                line = br.readLine();
-                hidden_layers[i] = new HiddenLayer(Integer.valueOf(line), hidden_layers[i - 1].numofneurons, NeuronType.hidden, "hidden" + i);
+            for (int i=1;i<NeuronsOnHiddenLayers.size();i++)
+            {
+                hidden_layers[i] = new HiddenLayer(Integer.valueOf(NeuronsOnHiddenLayers.get(i)), hidden_layers[i - 1].numofneurons, NeuronType.hidden, "hidden" + i);
             }
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
@@ -136,11 +130,15 @@ public class NeuralNet {
             temp_cost = GetCost(temp_mses);//вычисление ошибки по эпохе
             //debugging
             System.out.println(Double.toString(temp_cost));
-            //WriteLine($"{temp_cost}");
+            //Установка предельного времени обучения сети
+            if ((System.currentTimeMillis()-startTrainTime)>60000){
+                System.out.println("Превышено время обучения");
+                break;
+            }
         } while (temp_cost > threshold);
         long stopTrainTime = System.currentTimeMillis(); //Запись времени завершения обучения
         //Запись результатов обучения в файл
-        WriteResultsToFile(MillisToHours(stopTrainTime - startTrainTime));
+        WriteResultsToFile(MillisToHours(stopTrainTime - startTrainTime), Double.toString(temp_cost));
         //загрузка скорректированных весов в "память"
         //Запись весов скрытых слоев
         hidden_layers[0].WeightInitialize(MemoryMode.SET, "hidden");
@@ -180,10 +178,20 @@ public class NeuralNet {
     }
 
     //Метод записи результатов обучения сети
-    private static void WriteResultsToFile(String text) {
-        File resultfile = new File("result.txt");
+    private void WriteResultsToFile(String text, String error) {
+        //Запись результатов в таблицу Excel
+
+        //Запись результатов в текстовые файлы
+        String fileName="Expirements\\result\\result";
+        //Цикл для создания названия файла с результатами
+        for (int i=0;i<hidden_layers.length;i++){
+            fileName+="_"+hidden_layers[i].numofneurons;
+        }
+        fileName+=".txt";
+        File resultfile = new File(fileName);
         try (FileWriter writer = new FileWriter(resultfile, false)) {
-            writer.append("Время обучения НС: " + text);
+            writer.append("Время обучения НС: " + text + "   \n");
+            writer.append("Ошибка обучения НС: " + error + "   \n");
             writer.flush();
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
