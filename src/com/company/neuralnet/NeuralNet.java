@@ -11,6 +11,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.LinkedList;
 import java.util.List;
 
 public class NeuralNet {
@@ -103,6 +104,7 @@ public class NeuralNet {
         final double threshold = 0.001;//порог ошибки
         double[] temp_mses = new double[input_layer.errorDB.length];//массив для хранения ошибок итераций
         double temp_cost = 0;//текущее значение ошибки по эпохе
+        LinkedList<Double> cost_list = new LinkedList<Double>();//Коллекция для хранения значений ошибки
         //Цикл до достижения указанного порога ошибки
         do {
             //Цикл по количеству "тренировочных" сетов
@@ -134,6 +136,7 @@ public class NeuralNet {
                 }
             }
             temp_cost = GetCost(temp_mses);//вычисление ошибки по эпохе
+            cost_list.add(temp_cost);//Запись ошибки по эпохе в коллекцию
             //debugging
             System.out.println(Double.toString(temp_cost));
             //Установка предельного времени обучения сети
@@ -152,7 +155,7 @@ public class NeuralNet {
         output_layer.WeightInitialize(MemoryMode.SET, "output");
 
         //Запись результатов обучения в файл
-        WriteResultsToFile(MillisToHours(stopTrainTime - startTrainTime), Double.toString(temp_cost));
+        WriteResultsToFile(MillisToHours(stopTrainTime - startTrainTime), cost_list);
     }
 
     //тестирование сети
@@ -185,7 +188,7 @@ public class NeuralNet {
     }
 
     //Метод записи результатов обучения сети
-    private void WriteResultsToFile(String text, String error) {
+    private void WriteResultsToFile(String text, LinkedList<Double> error_list) {
         //Запись результатов в таблицу Excel
         Workbook wb = new HSSFWorkbook();
         //Попытка открыть файл
@@ -215,7 +218,7 @@ public class NeuralNet {
         cell = row.createCell(1);
         cell.setCellValue(text);
         cell = row.createCell(2);
-        cell.setCellValue(error);
+        cell.setCellValue(String.valueOf(error_list.getLast()));
         //Запись весов скрытых слоев
         Sheet expSheet = wb.createSheet(expName);
         int rowsNum = 0;
@@ -224,23 +227,34 @@ public class NeuralNet {
             if (hidden_layers[i].numofneurons * hidden_layers[i].numofprevneurons > rowsNum)
                 rowsNum = hidden_layers[i].numofneurons * hidden_layers[i].numofprevneurons;
         }
+        //Сравнение с количеством срок в коллекции ошибок
+        if (error_list.size() > rowsNum) rowsNum = error_list.size();
         Row expRow;
         Cell expCell;
         //Создание строк для записи весов
         for (int i = 0; i < rowsNum; i++)
             expRow = expSheet.createRow(i);
-        int rowCount=0;
+        int rowCount = 0;
         //Проход по всем скрытым слоям
         for (int i = 0; i < hidden_layers.length; i++)
             //Проход по всем нейронам
-            for(int j=0;j<hidden_layers[i].numofneurons;j++)
+            for (int j = 0; j < hidden_layers[i].numofneurons; j++)
                 //Проход по всем весам (нейроны*количество предшествующих нейронов)
-                for (int k=0;k<hidden_layers[i].numofprevneurons;k++){
+                for (int k = 0; k < hidden_layers[i].numofprevneurons; k++) {
                     expRow = expSheet.getRow(rowCount);
-                    expCell = expRow.createCell(i);
+                    expCell = expRow.createCell(i + 1);
                     expCell.setCellValue(hidden_layers[i].neurons[j].weights[k]);
                     rowCount++;
                 }
+        rowCount = 0;
+        //Запись ошибок вычислений в 0 столбец
+        for (int i = 0; i < error_list.size(); i++) {
+            expRow = expSheet.getRow(rowCount);
+            expCell = expRow.createCell(0);
+            expCell.setCellValue(error_list.get(i));
+            rowCount++;
+        }
+
         //Попытка записи результатов в файл
         try {
             FileOutputStream fileOut = new FileOutputStream("Expirements\\ExpirementResults.xls");
@@ -260,7 +274,7 @@ public class NeuralNet {
         File resultfile = new File(fileName);
         try (FileWriter writer = new FileWriter(resultfile, false)) {
             writer.append("Время обучения НС: " + text + "   \n");
-            writer.append("Ошибка обучения НС: " + error + "   \n");
+            writer.append("Ошибка обучения НС: " + String.valueOf(error_list.getLast()) + "   \n");
             writer.flush();
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
