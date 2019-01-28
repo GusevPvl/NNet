@@ -236,16 +236,22 @@ public class NeuralNet {
             expRow = expSheet.createRow(i);
         int rowCount = 0;
         //Проход по всем скрытым слоям
-        for (int i = 0; i < hidden_layers.length; i++)
-            //Проход по всем нейронам
-            for (int j = 0; j < hidden_layers[i].numofneurons; j++)
-                //Проход по всем весам (нейроны*количество предшествующих нейронов)
-                for (int k = 0; k < hidden_layers[i].numofprevneurons; k++) {
-                    expRow = expSheet.getRow(rowCount);
-                    expCell = expRow.createCell(i + 1);
-                    expCell.setCellValue(hidden_layers[i].neurons[j].weights[k]);
-                    rowCount++;
-                }
+        try {
+            for (int i = 0; i < hidden_layers.length; i++) {
+                //Проход по всем нейронам
+                for (int j = 0; j < hidden_layers[i].numofneurons; j++)
+                    //Проход по всем весам (нейроны*количество предшествующих нейронов)
+                    for (int k = 0; k < hidden_layers[i].numofprevneurons; k++) {
+                        expRow = expSheet.getRow(rowCount);
+                        expCell = expRow.createCell(i + 1);
+                        expCell.setCellValue(hidden_layers[i].neurons[j].weights[k]);
+                        rowCount++;
+                    }
+                rowCount = 0;
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
         rowCount = 0;
         //Запись ошибок вычислений в 0 столбец
         for (int i = 0; i < error_list.size(); i++) {
