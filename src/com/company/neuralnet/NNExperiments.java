@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.*;
@@ -18,7 +19,7 @@ public class NNExperiments {
         Workbook wb = new HSSFWorkbook();
         //Создание листа для записи основных результатов
         Sheet sheet = wb.createSheet("TotalResult");
-        Row row= sheet.createRow(0);
+        Row row = sheet.createRow(0);
         Cell cell = row.createCell(0);
         cell.setCellValue("Эксперимент");
         cell = row.createCell(1);
@@ -52,6 +53,8 @@ public class NNExperiments {
             System.out.println(ex.getMessage());
         }
         //Проход по всем параметрам эксперимента
+        List<List<Integer>> allExpirementsNeurons = new LinkedList<>();
+
         //По слоям
         for (int layersnum = expirementparams.get("minHiddenLayers"); layersnum < expirementparams.get("maxHiddenLayers") + 1; layersnum += expirementparams.get("stepHiddenLayers")) {
             //По нейронам
@@ -73,6 +76,23 @@ public class NNExperiments {
                 nnet.Train();
             }
         }
+    }
+
+
+    static List<Integer> permutation(int sloi, int ostatok, int[] current_ijk, int[] znacheniya, List<Integer> result) {
+        for (int i = 0; i < znacheniya.length; i++) {
+            current_ijk[ostatok - 1] = i;
+            if (ostatok - 1 == 0) {
+                for (int j = 0; j < sloi; j++) {
+                    result.add(znacheniya[current_ijk[j]]);
+                }
+            } else {
+                permutation(sloi, ostatok - 1, current_ijk, znacheniya, result);
+            }
+        }
+
+
+        return result;
     }
 }
 

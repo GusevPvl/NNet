@@ -222,21 +222,25 @@ public class NeuralNet {
         //Запись весов скрытых слоев
         Sheet expSheet = wb.createSheet(expName);
         int rowsNum = 0;
-        //Вычисление количества строк, необходимых для записи
+        //Вычисление количества строк, необходимых для записи. Сравнение количества связей скрытых слоев.
         for (int i = 0; i < hidden_layers.length; i++) {
             if (hidden_layers[i].numofneurons * hidden_layers[i].numofprevneurons > rowsNum)
                 rowsNum = hidden_layers[i].numofneurons * hidden_layers[i].numofprevneurons;
         }
         //Сравнение с количеством срок в коллекции ошибок
         if (error_list.size() > rowsNum) rowsNum = error_list.size();
+        //Сравнение количества строк с количеством связей выходного уровня
+        if (output_layer.numofneurons > rowsNum) rowsNum = output_layer.numofneurons;
+        //Строка и ячейка для записи результатов эксперимента
         Row expRow;
         Cell expCell;
-        //Создание строк для записи весов
+        //Создание строк для записи весов и эволюции ошибок
         for (int i = 0; i < rowsNum; i++)
             expRow = expSheet.createRow(i);
         int rowCount = 0;
-        //Проход по всем скрытым слоям
+        //Блок try для записи результатов эксперимента
         try {
+            //Проход по всем скрытым слоям, для записи весов
             for (int i = 0; i < hidden_layers.length; i++) {
                 //Проход по всем нейронам
                 for (int j = 0; j < hidden_layers[i].numofneurons; j++)
@@ -249,20 +253,27 @@ public class NeuralNet {
                     }
                 rowCount = 0;
             }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-        rowCount = 0;
-        //Запись ошибок вычислений в 0 столбец
-        for (int i = 0; i < error_list.size(); i++) {
-            expRow = expSheet.getRow(rowCount);
-            expCell = expRow.createCell(0);
-            expCell.setCellValue(error_list.get(i));
-            rowCount++;
-        }
+            rowCount = 0; //Обнуление счетчика строк
+            //Запись весов выходного слоя
+            for (int j = 0; j < output_layer.numofneurons; j++)
+                //Проход по всем весам (нейроны*количество предшествующих нейронов)
+                for (int k = 0; k < output_layer.numofprevneurons; k++) {
+                    expRow = expSheet.getRow(rowCount);
+                    expCell = expRow.createCell(hidden_layers.length + 1);
+                    expCell.setCellValue(output_layer.neurons[j].weights[k]);
+                    rowCount++;
+                }
+            rowCount = 0;
+            rowCount = 0; //Обнуление счетчика строк
+            //Запись ошибок вычислений в 0 столбец
+            for (int i = 0; i < error_list.size(); i++) {
+                expRow = expSheet.getRow(rowCount);
+                expCell = expRow.createCell(0);
+                expCell.setCellValue(error_list.get(i));
+                rowCount++;
+            }
 
-        //Попытка записи результатов в файл
-        try {
+            //Попытка записи файла
             FileOutputStream fileOut = new FileOutputStream("Expirements\\ExpirementResults.xls");
             wb.write(fileOut);
             fileOut.close();
