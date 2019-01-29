@@ -20,10 +20,14 @@ public class NeuralNet {
     public HiddenLayer hidden_layer;// = new HiddenLayer(200, input_layer.trainsetDB[1].length, NeuronType.hidden, "hidden"); //Инициализация скрытого слоя
     //public HiddenLayer hidden_layer1 = new HiddenLayer(4, 4, NeuronType.hidden, "hidden1"); //Инициализация скрытого слоя
     public OutputLayer output_layer;// = new OutputLayer(input_layer.errorDB[1].length, 200, NeuronType.output, "output"); //Ининциализация выходного слоя
-
+    //Массив скрытых слоев
     public HiddenLayer[] hidden_layers;
     //массив для хранения выхода сети (фактические значения) - размерность: количество выходных нейронов
-    public double[] fact;// = new double[input_layer.errorDB[1].length];
+    public double[] fact;
+    //Точность обучения
+    double trainingAccuracy;
+    //Предельное время обучения
+    int trainingTimeLimit;
 
     //Стандартный конструктор
     public NeuralNet() {
@@ -35,7 +39,10 @@ public class NeuralNet {
     }
 
     //Конструктор для создания произвольного количества скрытых слоёв с заданным количеством нейронов
-    public NeuralNet(String SettingsFile, String mode) {
+    public NeuralNet(String SettingsFile, String mode, double trainingAccuracy, int trainingTimeLimit) {
+        //Задание точность и времени обучения
+        this.trainingAccuracy = trainingAccuracy;
+        this.trainingTimeLimit = trainingTimeLimit;
         input_layer = new InputLayer(); //Инициализация входного слоя - задается отдельным классом
         fact = new double[input_layer.errorDB[1].length];//Инициализация массива фактических значений
         List<String> NeuronsOnHiddenLayers;
@@ -140,11 +147,11 @@ public class NeuralNet {
             //debugging
             System.out.println(Double.toString(temp_cost));
             //Установка предельного времени обучения сети
-            if ((System.currentTimeMillis() - startTrainTime) > 60000) {
+            if (((System.currentTimeMillis() - startTrainTime) > trainingTimeLimit)&&trainingTimeLimit!=0) {
                 System.out.println("Превышено время обучения");
                 break;
             }
-        } while (temp_cost > threshold);
+        } while (temp_cost > trainingAccuracy);
         long stopTrainTime = System.currentTimeMillis(); //Запись времени завершения обучения
         //загрузка скорректированных весов в "память"
         //Запись весов скрытых слоев

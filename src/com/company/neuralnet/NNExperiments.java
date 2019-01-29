@@ -52,10 +52,56 @@ public class NNExperiments {
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
         }
-        //Проход по всем параметрам эксперимента
+        //Список для хранения всех параметров экспериментов
         List<List<Integer>> allExpirementsNeurons = new LinkedList<>();
-
-        //По слоям
+        //Создание массива с возможными значениями количества нейронов
+        ArrayList<Integer> valuesofNeurons = new ArrayList<>();
+        for (int neuronsnum = expirementparams.get("minNeuronOnLayer"); neuronsnum < expirementparams.get("maxNeuronOnLayer") + 1; neuronsnum += expirementparams.get("stepNeuronOnLayer")) {
+            valuesofNeurons.add(neuronsnum);
+        }
+        //Запуск просчета количества вариаций экспериментов по слоям
+        int countofLayers = 0;
+        for (int layersnum = expirementparams.get("minHiddenLayers"); layersnum < expirementparams.get("maxHiddenLayers") + 1; layersnum += expirementparams.get("stepHiddenLayers")) {
+            //Определяется необходимость комбинирования количества нейронов по слоям
+            if (expirementparams.get("combineNeuronsOnLayers") == 1) {
+                //Если комбинируется - запускается рекурсивный метод
+                int[] ijk = new int[layersnum];
+                allExpirementsNeurons = permutations(layersnum, layersnum, ijk, valuesofNeurons, allExpirementsNeurons);
+            } else {
+                //Если нет - на каждый слои добавляется одинаковое количество нейронов
+                for (int znachCount = 0; znachCount < valuesofNeurons.size(); znachCount++) {
+                    List<Integer> currResult = new LinkedList<>();
+                    for (int layersCount = 0; layersCount < layersnum; layersCount++) {
+                        currResult.add(valuesofNeurons.get(znachCount));
+                    }
+                    allExpirementsNeurons.add(currResult);
+                }
+            }
+        }
+        //Проверка
+        for (List<Integer> currentExpirement :
+                allExpirementsNeurons) {
+            //Создание файла с параметрами эксперимента
+            File outputfile = new File("NNetSettings.txt");
+            try (FileWriter writer = new FileWriter(outputfile, false)) {
+                //Цикл по количеству слоёв с записью нейронов на каждый слой
+                for (int neurons :
+                        currentExpirement) {
+                    writer.append(Integer.toString(neurons));
+                    writer.append('\n');
+                }
+                writer.flush();
+            } catch (IOException ex) {
+                System.out.println(ex.getMessage());
+            }
+            //Запуск сети
+            NeuralNet nnet = new NeuralNet("NNetSettings.txt",
+                    "Train",(double)1/expirementparams.get("trainingAccuracy"),
+                    expirementparams.get("trainingTimeLimit")*1000);
+            nnet.Train();
+        }
+        //CombineNeuronsOnLayers:1
+       /*//По слоям
         for (int layersnum = expirementparams.get("minHiddenLayers"); layersnum < expirementparams.get("maxHiddenLayers") + 1; layersnum += expirementparams.get("stepHiddenLayers")) {
             //По нейронам
             for (int neuronsnum = expirementparams.get("minNeuronOnLayer"); neuronsnum < expirementparams.get("maxNeuronOnLayer") + 1; neuronsnum += expirementparams.get("stepNeuronOnLayer")) {
@@ -75,26 +121,35 @@ public class NNExperiments {
                 NeuralNet nnet = new NeuralNet("NNetSettings.txt", "Train");
                 nnet.Train();
             }
-        }
+        }*/
     }
 
-
-    static List<Integer> permutation(int sloi, int ostatok, int[] current_ijk, int[] znacheniya, List<Integer> result) {
-        for (int i = 0; i < znacheniya.length; i++) {
+    //Метод получения перестановок значений
+    static List<List<Integer>> permutations(int sloi, int ostatok, int[] current_ijk, List<Integer> znacheniya, List<List<Integer>> nlist) {
+        //Запуск вложенных циклов по количеству чисел в выборке
+        for (int i = 0; i < znacheniya.size(); i++) {
+            //Значение в текущей выборке ищется по индексу в массиве входных значений
             current_ijk[ostatok - 1] = i;
+            //Если это - последний уровень рекурсии
             if (ostatok - 1 == 0) {
+                //Обнуляется "текущий" лист
+                List<Integer> currResult = new LinkedList<>();
+                //Записывается текущая выборка
                 for (int j = 0; j < sloi; j++) {
-                    result.add(znacheniya[current_ijk[j]]);
+                    currResult.add(znacheniya.get(current_ijk[j]));
                 }
+                //Добавляется в общий список
+                nlist.add(currResult);
             } else {
-                permutation(sloi, ostatok - 1, current_ijk, znacheniya, result);
+                //Если не последний уровень - запуск рекурсии
+                permutations(sloi, ostatok - 1, current_ijk, znacheniya, nlist);
             }
         }
-
-
-        return result;
+        return nlist;//
     }
+
 }
+
 
 //Класс для хранения параметров экспериментов
 class ExpParams {
