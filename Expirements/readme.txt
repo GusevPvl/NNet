@@ -1,0 +1,1 @@
+intialDataType: 0 - DataBase, 1 - ExcelFile
