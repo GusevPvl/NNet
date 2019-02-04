@@ -97,7 +97,7 @@ public class NNExperiments {
             //Запуск сети
             NeuralNet nnet = new NeuralNet("NNetSettings.txt",
                     "Train",(double)1/expirementparams.get("trainingAccuracy"),
-                    expirementparams.get("trainingTimeLimit")*1000);
+                    (expirementparams.get("trainingTimeLimit")*1000),expirementparams.get("intialDataType"));
             nnet.Train();
         }
         //CombineNeuronsOnLayers:1

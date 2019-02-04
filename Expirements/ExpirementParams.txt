@@ -7,3 +7,4 @@ stepNeuronOnLayer:10
 combineNeuronsOnLayers:1
 trainingAccuracy:1000
 trainingTimeLimit:60
+intialDataType:1

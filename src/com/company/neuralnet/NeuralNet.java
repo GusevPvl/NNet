@@ -32,18 +32,18 @@ public class NeuralNet {
     //Стандартный конструктор
     public NeuralNet() {
         //все слои сети
-        input_layer = new InputLayer(); //Инициализация входного слоя - задается отдельным классом
+        //input_layer = new InputLayer(); //Инициализация входного слоя - задается отдельным классом
         hidden_layer = new HiddenLayer(200, input_layer.trainsetDB[1].length, NeuronType.hidden, "hidden"); //Инициализация скрытого слоя
         output_layer = new OutputLayer(input_layer.errorDB[1].length, 200, NeuronType.output, "output"); //Ининциализация выходного слоя
         fact = new double[input_layer.errorDB[1].length];//Инициализация массива фактических значений
     }
 
     //Конструктор для создания произвольного количества скрытых слоёв с заданным количеством нейронов
-    public NeuralNet(String SettingsFile, String mode, double trainingAccuracy, int trainingTimeLimit) {
+    public NeuralNet(String SettingsFile, String mode, double trainingAccuracy, int trainingTimeLimit, Integer IntialDataType) {
         //Задание точность и времени обучения
         this.trainingAccuracy = trainingAccuracy;
         this.trainingTimeLimit = trainingTimeLimit;
-        input_layer = new InputLayer(); //Инициализация входного слоя - задается отдельным классом
+        input_layer = new InputLayer(IntialDataType); //Инициализация входного слоя - задается отдельным классом
         fact = new double[input_layer.errorDB[1].length];//Инициализация массива фактических значений
         List<String> NeuronsOnHiddenLayers;
         Path path = Paths.get(SettingsFile);
@@ -52,7 +52,7 @@ public class NeuralNet {
             hidden_layers = new HiddenLayer[NeuronsOnHiddenLayers.size()]; //Инициализация массива скрытых слоев
             if (mode == "Train")
                 WeightsFilesInitialize(SettingsFile, NeuronsOnHiddenLayers.size());
-            //Создание первого скрытого слоя, количество предыдущиъ нейронов - количество нейронов входного слоя
+            //Создание первого скрытого слоя, количество предыдущих нейронов - количество нейронов входного слоя
             hidden_layers[0] = new HiddenLayer(Integer.valueOf(NeuronsOnHiddenLayers.get(0)), input_layer.trainsetDB[1].length, NeuronType.hidden, "hidden");
             //Создание остальных скрытых слоев
             for (int i = 1; i < NeuronsOnHiddenLayers.size(); i++) {
@@ -144,7 +144,7 @@ public class NeuralNet {
             }
             temp_cost = GetCost(temp_mses);//вычисление ошибки по эпохе
             cost_list.add(temp_cost);//Запись ошибки по эпохе в коллекцию
-            //debugging
+            //debugging output
             System.out.println(Double.toString(temp_cost));
             //Установка предельного времени обучения сети
             if (((System.currentTimeMillis() - startTrainTime) > trainingTimeLimit)&&trainingTimeLimit!=0) {

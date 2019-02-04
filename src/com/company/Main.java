@@ -31,25 +31,25 @@ import java.util.ListIterator;
 
 public class Main {
     public static void main(String[] args) {
-        /*Workbook wb = new HSSFWorkbook();
+       /* Workbook wb = new HSSFWorkbook();
         try {
-            POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream("wb.xls"));
+            POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream("IntialData\\IntialData.xls"));
             wb = new HSSFWorkbook(fs);
 
         } catch (Exception e) {
 
         }
-        Sheet sheet = ((HSSFWorkbook) wb).getSheetAt(0);
+        Sheet sheet = ((HSSFWorkbook) wb).getSheet("Trainset");
         int rownum=0;
         for (Row row : sheet) {
-            rownum=row.getRowNum();
-        }
-        Row row;//=sheet.createRow(rownum+1);
+            System.out.println(row.getRowNum());
+        }*/
+        /*Row row;//=sheet.createRow(rownum+1);
         row=sheet.getRow(10);
         Cell cell = row.createCell(0);
-        cell.setCellValue("Время:");
+        cell.setCellValue("Время:");*/
 
-        try {
+       /* try {
             FileOutputStream fileOut = new FileOutputStream("wb.xls");
             wb.write(fileOut);
             fileOut.close();
@@ -72,10 +72,14 @@ public class Main {
         }*/
 
         //Запуск по новому
-        //NeuralNet nnet=new NeuralNet("NNetSettings.txt", "Tr");
-        //nnet.Train();
-        //nnet.Test();
-        NNExperiments.startExp("Expirements\\ExpirementParams.txt");
+        NeuralNet nnet=new NeuralNet("NNetSettings.txt", "Train",0.001,0,1);
+        nnet.Train();
+        nnet.Test();
+
+
+
+        //Запуск экспериментов
+        //NNExperiments.startExp("Expirements\\ExpirementParams.txt");
 
         System.out.println("Ok");
     }
