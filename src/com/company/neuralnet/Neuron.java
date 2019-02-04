@@ -50,6 +50,4 @@ class Neuron {
             return g_sum * dif;
 
     }
-    //public double Derivativator(double outsignal) =>outsignal *(1-outsignal);//формула производной для текущей функции активации уже выведена в ранее упомянутой книге
-    //public double Gradientor(double error, double dif, double g_sum) =>(_type ==NeuronType.Output)?error *dif :g_sum *dif;//g_sum - это сумма градиентов следующего слоя
 }

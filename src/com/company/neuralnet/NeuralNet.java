@@ -314,10 +314,10 @@ public class NeuralNet {
             BufferedReader br = new BufferedReader(reader);
             String line;
             line = br.readLine(); //Считывание количества нейронов 1 скрытого слоя
-            //Как минимум 1 скрытый слой всегда задается
+            //Как минимум 1 скрытый слой всегда задается, у него на входе-входной слой
             File hiddenfile = new File("hidden.txt");
             try (FileWriter writer = new FileWriter(hiddenfile, false)) {
-                for (int l = 0; l < Integer.valueOf(line) * input_layer.trainsetDB[1].length; ++l) {
+                for (int l = 0; l < Integer.valueOf(line) * (input_layer.trainsetDB[1].length); ++l) {
                     writer.append(Double.toString(0.0));
                     writer.append('\n');
                 }

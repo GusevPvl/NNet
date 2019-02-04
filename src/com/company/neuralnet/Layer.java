@@ -11,7 +11,7 @@ abstract class Layer {//type используется для связи с од�
     public Layer() {
     }
 
-    protected Layer(int non, int nopn, NeuronType nt, String type) {//увидите это в WeightInitialize
+    protected Layer(int non, int nopn, NeuronType nt, String type) {
         numofneurons = non;
         numofprevneurons = nopn;
         neurons = new Neuron[non];
