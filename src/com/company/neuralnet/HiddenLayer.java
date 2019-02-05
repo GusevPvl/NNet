@@ -10,6 +10,7 @@ class HiddenLayer extends Layer {
         double[] hidden_out = new double[neurons.length]; //Массив для выходных значений слоя
         for (int i = 0; i < neurons.length; ++i)
             hidden_out[i] = neurons[i].Output(); //Расчет выходных значений, Output - вызов функции активации
+        //hidden_out[hidden_out.length-1]=1;//НЕЙРОН СМЕЩЕНИЯ
         nextLayer.Data(hidden_out);
     }
 

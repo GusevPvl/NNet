@@ -32,7 +32,7 @@ public class NeuralNet {
     //Стандартный конструктор
     public NeuralNet() {
         //все слои сети
-        //input_layer = new InputLayer(); //Инициализация входного слоя - задается отдельным классом
+        input_layer = new InputLayer(1); //Инициализация входного слоя - задается отдельным классом
         hidden_layer = new HiddenLayer(200, input_layer.trainsetDB[1].length, NeuronType.hidden, "hidden"); //Инициализация скрытого слоя
         output_layer = new OutputLayer(input_layer.errorDB[1].length, 200, NeuronType.output, "output"); //Ининциализация выходного слоя
         fact = new double[input_layer.errorDB[1].length];//Инициализация массива фактических значений
@@ -61,7 +61,7 @@ public class NeuralNet {
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
         }
-        output_layer = new OutputLayer(input_layer.errorDB[1].length, hidden_layers[hidden_layers.length - 1].numofneurons, NeuronType.output, "output"); //Ининциализация выходного слоя
+        output_layer = new OutputLayer(input_layer.errorDB[1].length, hidden_layers[hidden_layers.length - 1].numofneurons, NeuronType.output, "output"); //Ининциализация выходного слоя//НЕЙРОН СМЕЩЕНИЯ
     }
 
     //ошибка одной итерации обучения
@@ -347,7 +347,7 @@ public class NeuralNet {
         //Создание файла для выходного слоя
         File outputfile = new File("output.txt");
         try (FileWriter writer = new FileWriter(outputfile, false)) {
-            for (int l = 0; l < prevLayerNeurons * input_layer.errorDB[1].length; ++l) {
+            for (int l = 0; l < (prevLayerNeurons) * input_layer.errorDB[1].length; ++l) {//НЕЙРОН СМЕЩЕНИЯ
                 writer.append(Double.toString(0.0));
                 writer.append('\n');
             }

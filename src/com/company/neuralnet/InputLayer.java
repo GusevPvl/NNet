@@ -45,7 +45,7 @@ class InputLayer {
         return inputLayer;
     }
 
-    //Конструктор с загрузкой данных из БД
+    //Конструктор с загрузкой данных из БД/Excel
     public InputLayer(Integer type) {
         //Если считывание исходных данных происходит из Excel
         if (type == 1) {
