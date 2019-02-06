@@ -25,6 +25,8 @@ public class NNExperiments {
         cell = row.createCell(1);
         cell.setCellValue("Время поиска");
         cell = row.createCell(2);
+        cell.setCellValue("Количество эпох");
+        cell = row.createCell(3);
         cell.setCellValue("Ошибка");
         //Запись в файл
         try {
@@ -78,6 +80,7 @@ public class NNExperiments {
                 }
             }
         }
+        int k=1;//Счетчик экспериментов
         //Проверка
         for (List<Integer> currentExpirement :
                 allExpirementsNeurons) {
@@ -94,34 +97,17 @@ public class NNExperiments {
             } catch (IOException ex) {
                 System.out.println(ex.getMessage());
             }
-            //Запуск сети
-            NeuralNet nnet = new NeuralNet("NNetSettings.txt",
-                    "Train",(double)1/expirementparams.get("trainingAccuracy"),
-                    (expirementparams.get("trainingTimeLimit")*1000),expirementparams.get("intialDataType"));
-            nnet.Train();
-        }
-        //CombineNeuronsOnLayers:1
-       /*//По слоям
-        for (int layersnum = expirementparams.get("minHiddenLayers"); layersnum < expirementparams.get("maxHiddenLayers") + 1; layersnum += expirementparams.get("stepHiddenLayers")) {
-            //По нейронам
-            for (int neuronsnum = expirementparams.get("minNeuronOnLayer"); neuronsnum < expirementparams.get("maxNeuronOnLayer") + 1; neuronsnum += expirementparams.get("stepNeuronOnLayer")) {
-                //Создание файла с параметрами эксперимента
-                File outputfile = new File("NNetSettings.txt");
-                try (FileWriter writer = new FileWriter(outputfile, false)) {
-                    //Цикл по количеству слоёв с записью нейронов на каждый слой
-                    for (int i = 0; i < layersnum; i++) {
-                        writer.append(Integer.toString(neuronsnum));
-                        writer.append('\n');
-                    }
-                    writer.flush();
-                } catch (IOException ex) {
-                    System.out.println(ex.getMessage());
-                }
+            //Запуск экспериментов по количеству наблюдений
+            for (int i = 0; i < expirementparams.get("observationsPerExpirement"); i++) {
+                System.out.println("Текущий эксперимент: "+k);
                 //Запуск сети
-                NeuralNet nnet = new NeuralNet("NNetSettings.txt", "Train");
+                NeuralNet nnet = new NeuralNet("NNetSettings.txt",
+                        "Train", (double) 1 / expirementparams.get("trainingAccuracy"),
+                        (expirementparams.get("trainingTimeLimit") * 1000), expirementparams.get("intialDataType"));
                 nnet.Train();
             }
-        }*/
+            k++;
+        }
     }
 
     //Метод получения перестановок значений

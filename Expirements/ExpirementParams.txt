@@ -1,10 +1,11 @@
 minHiddenLayers:1
 maxHiddenLayers:1
-minNeuronOnLayer:300
-maxNeuronOnLayer:300
-stepHiddenLayers:1
-stepNeuronOnLayer:10
+minNeuronOnLayer:100
+maxNeuronOnLayer:200
+stepHiddenLayers:20
+stepNeuronOnLayer:20
 combineNeuronsOnLayers:1
 trainingAccuracy:100
 trainingTimeLimit:0
 intialDataType:1
+observationsPerExpirement:1

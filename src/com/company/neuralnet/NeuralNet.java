@@ -145,13 +145,15 @@ public class NeuralNet {
             temp_cost = GetCost(temp_mses);//вычисление ошибки по эпохе
             cost_list.add(temp_cost);//Запись ошибки по эпохе в коллекцию
             //debugging output
-            System.out.println(Double.toString(temp_cost));
+            System.out.print("\r");
+            System.out.print(Double.toString(temp_cost));
             //Установка предельного времени обучения сети
-            if (((System.currentTimeMillis() - startTrainTime) > trainingTimeLimit)&&trainingTimeLimit!=0) {
+            if (((System.currentTimeMillis() - startTrainTime) > trainingTimeLimit) && trainingTimeLimit != 0) {
                 System.out.println("Превышено время обучения");
                 break;
             }
         } while (temp_cost > trainingAccuracy);
+        System.out.println();
         long stopTrainTime = System.currentTimeMillis(); //Запись времени завершения обучения
         //загрузка скорректированных весов в "память"
         //Запись весов скрытых слоев
@@ -215,16 +217,19 @@ public class NeuralNet {
         }
         //Создание названия эксперимента
         String expName = "";
-        //Цикл для создания названия файла с результатами
+        //Цикл для создания названия файла с результатами/названия строки в Excel
         for (int i = 0; i < hidden_layers.length; i++) {
             expName += "_" + hidden_layers[i].numofneurons;
         }
         Row row = sheet.createRow(rownum + 1);
+        expName += row.getRowNum();
         Cell cell = row.createCell(0);
         cell.setCellValue(expName);
         cell = row.createCell(1);
         cell.setCellValue(text);
         cell = row.createCell(2);
+        cell.setCellValue(error_list.size());
+        cell = row.createCell(3);
         cell.setCellValue(String.valueOf(error_list.getLast()));
         //Запись весов скрытых слоев
         Sheet expSheet = wb.createSheet(expName);
@@ -270,7 +275,6 @@ public class NeuralNet {
                     expCell.setCellValue(output_layer.neurons[j].weights[k]);
                     rowCount++;
                 }
-            rowCount = 0;
             rowCount = 0; //Обнуление счетчика строк
             //Запись ошибок вычислений в 0 столбец
             for (int i = 0; i < error_list.size(); i++) {

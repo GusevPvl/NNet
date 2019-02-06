@@ -44,7 +44,7 @@ abstract class Layer {//type используется для связи с од�
 
     public double[][] WeightInitialize(MemoryMode mm, String type) {
         double[][] weights = new double[numofneurons][numofprevneurons];
-        System.out.println(type + " weights are being initialized...");
+        //System.out.println(type + " weights are being initialized...");
         File wfile = new File(type + ".txt");
         switch (mm) {
             case GET:
@@ -76,7 +76,7 @@ abstract class Layer {//type используется для связи с од�
                 }
                 break;
         }
-        System.out.println(type + " weights have been initialized...");
+        //System.out.println(type + " weights have been initialized...");
         return weights;
     }
 
