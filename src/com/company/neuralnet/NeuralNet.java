@@ -104,7 +104,7 @@ public class NeuralNet {
         }
     }
 
-    //непосредственно обучение
+    //обучение
     public void Train()//backpropagation method
     {
         long startTrainTime = System.currentTimeMillis(); //Запись времени начала обчения
@@ -146,10 +146,12 @@ public class NeuralNet {
             cost_list.add(temp_cost);//Запись ошибки по эпохе в коллекцию
             //debugging output
             System.out.print("\r");
-            System.out.print(Double.toString(temp_cost));
+            System.out.print(cost_list.size()+ " : ");
+            System.out.print(temp_cost);
             //Установка предельного времени обучения сети
             if (((System.currentTimeMillis() - startTrainTime) > trainingTimeLimit) && trainingTimeLimit != 0) {
-                System.out.println("Превышено время обучения");
+                System.out.println();
+                System.out.print("Превышено время обучения");
                 break;
             }
         } while (temp_cost > trainingAccuracy);
@@ -293,7 +295,7 @@ public class NeuralNet {
         }
 
         //Запись результатов в текстовые файлы
-        String fileName = "Expirements\\result\\result";
+        /*String fileName = "Expirements\\result\\result";
         //Цикл для создания названия файла с результатами
         for (int i = 0; i < hidden_layers.length; i++) {
             fileName += "_" + hidden_layers[i].numofneurons;
@@ -306,7 +308,7 @@ public class NeuralNet {
             writer.flush();
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
-        }
+        }*/
     }
 
     //Метод создания файлов с весами для слоев сети
@@ -363,3 +365,10 @@ public class NeuralNet {
     }
 }
 
+class trainSetGo extends Thread {
+
+
+    public void run(){
+        
+    }
+}

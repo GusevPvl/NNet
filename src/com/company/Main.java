@@ -2,6 +2,8 @@ package com.company;
 
 import com.company.neuralnet.*;
 
+import java.util.*;
+import java.util.concurrent.*;
 
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
@@ -29,8 +31,35 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
+class WordLengthCallable
+        implements Callable {
+    private String word;
+    public WordLengthCallable(String word) {
+        this.word = word;
+    }
+    public Integer call() {
+        return Integer.valueOf(word.length());
+    }
+}
+
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
+        /*String[] wrd=new String[]{"asd","qwe"};
+
+        ExecutorService pool = Executors.newFixedThreadPool(3);
+        Set<Future<Integer>> set = new HashSet<Future<Integer>>();
+        for (String word: wrd) {
+            Callable<Integer> callable = new WordLengthCallable(word);
+            Future<Integer> future = pool.submit(callable);
+            set.add(future);
+        }
+        int sum = 0;
+        for (Future<Integer> future : set) {
+            sum += future.get();
+        }
+        System.out.printf("The sum of lengths is %s%n", sum);
+        System.exit(sum);
+*/
        /* Workbook wb = new HSSFWorkbook();
         try {
             POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream("IntialData\\IntialData.xls"));
@@ -80,7 +109,8 @@ public class Main {
 
         //Запуск экспериментов
         NNExperiments.startExp("Expirements\\ExpirementParams.txt");
-
         System.out.println("Ok");
     }
 }
+
+
