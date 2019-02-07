@@ -1,8 +1,8 @@
 package com.company.neuralnet;
 
 class OutputLayer extends Layer {
-    public OutputLayer(int non, int nopn, NeuronType nt, String type) {
-        super(non, nopn, nt, type);
+    public OutputLayer(int non, int nopn, NeuronType nt, String type, boolean bias) {
+        super(non, nopn, nt, type, bias);
     }
 
     public void OutputCalculate(NeuralNet net, Layer nextLayer) {
@@ -11,7 +11,7 @@ class OutputLayer extends Layer {
     }
 
     public double[] BackwardPass(double[] errors) {
-        double[] gr_sum = new double[numofprevneurons];
+        double[] gr_sum = new double[numofprevneurons];//НЕЙРОН СМЕЩЕНИЯ
         for (int j = 0; j < gr_sum.length; ++j)//вычисление градиентных сумм выходного слоя
         {
             double sum = 0;
@@ -22,7 +22,7 @@ class OutputLayer extends Layer {
         }
         //коррекция весов
         for (int i = 0; i < numofneurons; ++i)
-            for (int n = 0; n < numofprevneurons; ++n)
+            for (int n = 0; n < numofprevneurons; ++n) //НЕЙРОН СМЕЩЕНИЯ
                 //Новый вес=скорость обучения*входное значение нейрона*дельту
                 neurons[i].weights[n] += learningrate * neurons[i].inputs[n] * neurons[i].Gradientor(errors[i], neurons[i].Derivativator(neurons[i].Output()), 0);
         return gr_sum;

@@ -54,6 +54,7 @@ public class NNExperiments {
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
         }
+        boolean biasOnOf = expirementparams.get("biasOnOff") == 1 ? true : false;
         //Список для хранения всех параметров экспериментов
         List<List<Integer>> allExpirementsNeurons = new LinkedList<>();
         //Создание массива с возможными значениями количества нейронов
@@ -80,7 +81,7 @@ public class NNExperiments {
                 }
             }
         }
-        int k=1;//Счетчик экспериментов
+        int k = 1;//Счетчик экспериментов
         //Проверка
         for (List<Integer> currentExpirement :
                 allExpirementsNeurons) {
@@ -99,11 +100,11 @@ public class NNExperiments {
             }
             //Запуск экспериментов по количеству наблюдений
             for (int i = 0; i < expirementparams.get("observationsPerExpirement"); i++) {
-                System.out.println("Текущий эксперимент: "+k);
+                System.out.println("Текущий эксперимент: " + k);
                 //Запуск сети
                 NeuralNet nnet = new NeuralNet("NNetSettings.txt",
                         "Train", (double) 1 / expirementparams.get("trainingAccuracy"),
-                        (expirementparams.get("trainingTimeLimit") * 1000), expirementparams.get("intialDataType"));
+                        (expirementparams.get("trainingTimeLimit") * 1000), expirementparams.get("intialDataType"), biasOnOf);
                 nnet.Train();
             }
             k++;

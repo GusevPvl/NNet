@@ -33,13 +33,13 @@ public class NeuralNet {
     public NeuralNet() {
         //все слои сети
         input_layer = new InputLayer(1); //Инициализация входного слоя - задается отдельным классом
-        hidden_layer = new HiddenLayer(200, input_layer.trainsetDB[1].length, NeuronType.hidden, "hidden"); //Инициализация скрытого слоя
-        output_layer = new OutputLayer(input_layer.errorDB[1].length, 200, NeuronType.output, "output"); //Ининциализация выходного слоя
+        hidden_layer = new HiddenLayer(200, input_layer.trainsetDB[1].length, NeuronType.hidden, "hidden", false); //Инициализация скрытого слоя
+        output_layer = new OutputLayer(input_layer.errorDB[1].length, 200, NeuronType.output, "output", false); //Ининциализация выходного слоя
         fact = new double[input_layer.errorDB[1].length];//Инициализация массива фактических значений
     }
 
     //Конструктор для создания произвольного количества скрытых слоёв с заданным количеством нейронов
-    public NeuralNet(String SettingsFile, String mode, double trainingAccuracy, int trainingTimeLimit, Integer IntialDataType) {
+    public NeuralNet(String SettingsFile, String mode, double trainingAccuracy, int trainingTimeLimit, Integer IntialDataType, boolean bias) {
         //Задание точность и времени обучения
         this.trainingAccuracy = trainingAccuracy;
         this.trainingTimeLimit = trainingTimeLimit;
@@ -51,17 +51,17 @@ public class NeuralNet {
             NeuronsOnHiddenLayers = Files.readAllLines(path);
             hidden_layers = new HiddenLayer[NeuronsOnHiddenLayers.size()]; //Инициализация массива скрытых слоев
             if (mode == "Train")
-                WeightsFilesInitialize(SettingsFile, NeuronsOnHiddenLayers.size());
+                WeightsFilesInitialize(SettingsFile, NeuronsOnHiddenLayers.size(), bias ? 1 : 0);
             //Создание первого скрытого слоя, количество предыдущих нейронов - количество нейронов входного слоя
-            hidden_layers[0] = new HiddenLayer(Integer.valueOf(NeuronsOnHiddenLayers.get(0)), input_layer.trainsetDB[1].length, NeuronType.hidden, "hidden");
+            hidden_layers[0] = new HiddenLayer(Integer.valueOf(NeuronsOnHiddenLayers.get(0)), input_layer.trainsetDB[1].length, NeuronType.hidden, "hidden", bias);
             //Создание остальных скрытых слоев
             for (int i = 1; i < NeuronsOnHiddenLayers.size(); i++) {
-                hidden_layers[i] = new HiddenLayer(Integer.valueOf(NeuronsOnHiddenLayers.get(i)), hidden_layers[i - 1].numofneurons, NeuronType.hidden, "hidden" + i);
+                hidden_layers[i] = new HiddenLayer(Integer.valueOf(NeuronsOnHiddenLayers.get(i)), hidden_layers[i - 1].numofneurons, NeuronType.hidden, "hidden" + i, bias);
             }
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
         }
-        output_layer = new OutputLayer(input_layer.errorDB[1].length, hidden_layers[hidden_layers.length - 1].numofneurons, NeuronType.output, "output"); //Ининциализация выходного слоя//НЕЙРОН СМЕЩЕНИЯ
+        output_layer = new OutputLayer(input_layer.errorDB[1].length, hidden_layers[hidden_layers.length - 1].numofneurons, NeuronType.output, "output", bias); //Ининциализация выходного слоя//НЕЙРОН СМЕЩЕНИЯ
     }
 
     //ошибка одной итерации обучения
@@ -146,7 +146,7 @@ public class NeuralNet {
             cost_list.add(temp_cost);//Запись ошибки по эпохе в коллекцию
             //debugging output
             System.out.print("\r");
-            System.out.print(cost_list.size()+ " : ");
+            System.out.print(cost_list.size() + " : ");
             System.out.print(temp_cost);
             //Установка предельного времени обучения сети
             if (((System.currentTimeMillis() - startTrainTime) > trainingTimeLimit) && trainingTimeLimit != 0) {
@@ -312,7 +312,7 @@ public class NeuralNet {
     }
 
     //Метод создания файлов с весами для слоев сети
-    private void WeightsFilesInitialize(String SettingsFile, int HiddenLayersNumber) {
+    private void WeightsFilesInitialize(String SettingsFile, int HiddenLayersNumber, int bias) {
 
         int prevLayerNeurons = 0;//Количество нейронов предыдущего слоя
         File settings = new File(SettingsFile);
@@ -323,7 +323,7 @@ public class NeuralNet {
             //Как минимум 1 скрытый слой всегда задается, у него на входе-входной слой
             File hiddenfile = new File("hidden.txt");
             try (FileWriter writer = new FileWriter(hiddenfile, false)) {
-                for (int l = 0; l < Integer.valueOf(line) * (input_layer.trainsetDB[1].length); ++l) {
+                for (int l = 0; l < Integer.valueOf(line) * (input_layer.trainsetDB[1].length + bias); ++l) {
                     writer.append(Double.toString(0.0));
                     writer.append('\n');
                 }
@@ -337,7 +337,7 @@ public class NeuralNet {
                 line = br.readLine();//Считывание количества нейронов остальных скрытых слоев
                 hiddenfile = new File("hidden" + i + ".txt");
                 try (FileWriter writer = new FileWriter(hiddenfile, false)) {
-                    for (int l = 0; l < Integer.valueOf(line) * prevLayerNeurons; ++l) {
+                    for (int l = 0; l < Integer.valueOf(line) * prevLayerNeurons + bias; ++l) {
                         writer.append(Double.toString(0.0));
                         writer.append('\n');
                     }
@@ -353,7 +353,7 @@ public class NeuralNet {
         //Создание файла для выходного слоя
         File outputfile = new File("output.txt");
         try (FileWriter writer = new FileWriter(outputfile, false)) {
-            for (int l = 0; l < (prevLayerNeurons) * input_layer.errorDB[1].length; ++l) {//НЕЙРОН СМЕЩЕНИЯ
+            for (int l = 0; l < (prevLayerNeurons + bias) * input_layer.errorDB[1].length; ++l) {//НЕЙРОН СМЕЩЕНИЯ
                 writer.append(Double.toString(0.0));
                 writer.append('\n');
             }
@@ -368,7 +368,7 @@ public class NeuralNet {
 class trainSetGo extends Thread {
 
 
-    public void run(){
-        
+    public void run() {
+
     }
 }

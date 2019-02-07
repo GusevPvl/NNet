@@ -34,9 +34,11 @@ import java.util.ListIterator;
 class WordLengthCallable
         implements Callable {
     private String word;
+
     public WordLengthCallable(String word) {
         this.word = word;
     }
+
     public Integer call() {
         return Integer.valueOf(word.length());
     }
@@ -106,9 +108,9 @@ public class Main {
         //nnet.Test();
 
 
-
         //Запуск экспериментов
         NNExperiments.startExp("Expirements\\ExpirementParams.txt");
+
         System.out.println("Ok");
     }
 }
