@@ -111,6 +111,11 @@ public class NNExperiments {
         }
     }
 
+
+    public static void startTest(){
+
+    }
+
     //Метод получения перестановок значений
     static List<List<Integer>> permutations(int sloi, int ostatok, int[] current_ijk, List<Integer> znacheniya, List<List<Integer>> nlist) {
         //Запуск вложенных циклов по количеству чисел в выборке

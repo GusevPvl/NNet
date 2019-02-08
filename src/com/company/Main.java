@@ -111,6 +111,7 @@ public class Main {
         //Запуск экспериментов
         NNExperiments.startExp("Expirements\\ExpirementParams.txt");
 
+
         System.out.println("Ok");
     }
 }

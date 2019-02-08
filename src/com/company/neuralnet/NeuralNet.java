@@ -33,8 +33,8 @@ public class NeuralNet {
     public NeuralNet() {
         //все слои сети
         input_layer = new InputLayer(1); //Инициализация входного слоя - задается отдельным классом
-        hidden_layer = new HiddenLayer(200, input_layer.trainsetDB[1].length, NeuronType.hidden, "hidden", false); //Инициализация скрытого слоя
-        output_layer = new OutputLayer(input_layer.errorDB[1].length, 200, NeuronType.output, "output", false); //Ининциализация выходного слоя
+        hidden_layer = new HiddenLayer(200, input_layer.trainsetDB[1].length, NeuronType.hidden, "hidden", true); //Инициализация скрытого слоя
+        output_layer = new OutputLayer(input_layer.errorDB[1].length, 200, NeuronType.output, "output", true); //Ининциализация выходного слоя
         fact = new double[input_layer.errorDB[1].length];//Инициализация массива фактических значений
     }
 
@@ -324,7 +324,7 @@ public class NeuralNet {
             File hiddenfile = new File("hidden.txt");
             try (FileWriter writer = new FileWriter(hiddenfile, false)) {
                 for (int l = 0; l < Integer.valueOf(line) * (input_layer.trainsetDB[1].length + bias); ++l) {
-                    writer.append(Double.toString(0.0));
+                    writer.append(Double.toString(0.0));//Math.sin(l*5)/15));
                     writer.append('\n');
                 }
                 writer.flush();
@@ -354,7 +354,7 @@ public class NeuralNet {
         File outputfile = new File("output.txt");
         try (FileWriter writer = new FileWriter(outputfile, false)) {
             for (int l = 0; l < (prevLayerNeurons + bias) * input_layer.errorDB[1].length; ++l) {//НЕЙРОН СМЕЩЕНИЯ
-                writer.append(Double.toString(0.0));
+                writer.append(Double.toString(0.0));//Math.sin(l*5)/15));
                 writer.append('\n');
             }
             writer.flush();
