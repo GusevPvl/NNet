@@ -11,6 +11,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.DecimalFormat;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -32,25 +33,25 @@ public class NeuralNet {
     //Стандартный конструктор
     public NeuralNet() {
         //все слои сети
-        input_layer = new InputLayer(1); //Инициализация входного слоя - задается отдельным классом
+        input_layer = new InputLayer(1, 1); //Инициализация входного слоя - задается отдельным классом
         hidden_layer = new HiddenLayer(200, input_layer.trainsetDB[1].length, NeuronType.hidden, "hidden", true); //Инициализация скрытого слоя
         output_layer = new OutputLayer(input_layer.errorDB[1].length, 200, NeuronType.output, "output", true); //Ининциализация выходного слоя
         fact = new double[input_layer.errorDB[1].length];//Инициализация массива фактических значений
     }
 
     //Конструктор для создания произвольного количества скрытых слоёв с заданным количеством нейронов
-    public NeuralNet(String SettingsFile, String mode, double trainingAccuracy, int trainingTimeLimit, Integer IntialDataType, boolean bias) {
+    public NeuralNet(String SettingsFile, Integer mode, double trainingAccuracy, int trainingTimeLimit, Integer IntialDataType, boolean bias) {
         //Задание точность и времени обучения
         this.trainingAccuracy = trainingAccuracy;
         this.trainingTimeLimit = trainingTimeLimit;
-        input_layer = new InputLayer(IntialDataType); //Инициализация входного слоя - задается отдельным классом
+        input_layer = new InputLayer(IntialDataType, mode); //Инициализация входного слоя - задается отдельным классом
         fact = new double[input_layer.errorDB[1].length];//Инициализация массива фактических значений
         List<String> NeuronsOnHiddenLayers;
         Path path = Paths.get(SettingsFile);
         try {
             NeuronsOnHiddenLayers = Files.readAllLines(path);
             hidden_layers = new HiddenLayer[NeuronsOnHiddenLayers.size()]; //Инициализация массива скрытых слоев
-            if (mode == "Train")
+            if (mode == 0)
                 WeightsFilesInitialize(SettingsFile, NeuronsOnHiddenLayers.size(), bias ? 1 : 0);
             //Создание первого скрытого слоя, количество предыдущих нейронов - количество нейронов входного слоя
             hidden_layers[0] = new HiddenLayer(Integer.valueOf(NeuronsOnHiddenLayers.get(0)), input_layer.trainsetDB[1].length, NeuronType.hidden, "hidden", bias);
@@ -172,6 +173,7 @@ public class NeuralNet {
     //тестирование сети
     public void Test() {
         System.out.println("Результаты тестирования сети" + input_layer.trainset.length);
+        double[] temp_mses = new double[input_layer.errorDB.length];//массив для хранения ошибок итераций
         for (int i = 0; i < input_layer.trainsetDB.length; ++i) {
             hidden_layers[0].Data(input_layer.trainsetDB[i]); //Как минимум 1 скрытый слой существует
             //Расчет с проходом по скрытым слоям
@@ -180,10 +182,21 @@ public class NeuralNet {
             }
             hidden_layers[hidden_layers.length - 1].OutputCalculate(this, output_layer);
             output_layer.OutputCalculate(this, null);
+            //Расчет ошибки текущего сета
+            double[] errors = new double[input_layer.errorDB[i].length];
+            for (int x = 0; x < errors.length; ++x)
+                errors[x] = input_layer.errorDB[i][x] - fact[x];
+            //Получение сркдр ошибки для всех итераций
+            temp_mses[i] = GetMSE(errors);
+            //Получение среднеквадратичной ошибки текущей итерации
+            double mse = GetMSE(errors);
             for (int j = 0; j < fact.length; ++j)
                 System.out.print(fact[j] + " ");
             System.out.println();
+            System.out.println("Ошибка сета = " + mse);
         }
+        String formattedMSE = new DecimalFormat("#0.000").format(GetCost(temp_mses));
+        System.out.println("Общая ошибка = " + formattedMSE);
     }
 
     //Метод преобразования миллисекунд в ЧЧ:ММ:СС.ССС

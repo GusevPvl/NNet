@@ -11,7 +11,7 @@ class OutputLayer extends Layer {
     }
 
     public double[] BackwardPass(double[] errors) {
-        double[] gr_sum = new double[numofprevneurons];//НЕЙРОН СМЕЩЕНИЯ
+        double[] gr_sum = new double[numofprevneurons];
         for (int j = 0; j < gr_sum.length; ++j)//вычисление градиентных сумм выходного слоя
         {
             double sum = 0;
@@ -22,7 +22,7 @@ class OutputLayer extends Layer {
         }
         //коррекция весов
         for (int i = 0; i < numofneurons; ++i)
-            for (int n = 0; n < numofprevneurons; ++n) //НЕЙРОН СМЕЩЕНИЯ
+            for (int n = 0; n < numofprevneurons; ++n)
                 //Новый вес=скорость обучения*входное значение нейрона*дельту
                 neurons[i].weights[n] += learningrate * neurons[i].inputs[n] * neurons[i].Gradientor(errors[i], neurons[i].Derivativator(neurons[i].Output()), 0);
         return gr_sum;

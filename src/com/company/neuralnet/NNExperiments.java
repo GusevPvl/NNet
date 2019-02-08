@@ -15,28 +15,6 @@ import org.apache.poi.ss.util.CellReference;
 
 public class NNExperiments {
     public static void startExp(String paramsfile) {
-        //Создание книги для записи результатов экспериментов
-        Workbook wb = new HSSFWorkbook();
-        //Создание листа для записи основных результатов
-        Sheet sheet = wb.createSheet("TotalResult");
-        Row row = sheet.createRow(0);
-        Cell cell = row.createCell(0);
-        cell.setCellValue("Эксперимент");
-        cell = row.createCell(1);
-        cell.setCellValue("Время поиска");
-        cell = row.createCell(2);
-        cell.setCellValue("Количество эпох");
-        cell = row.createCell(3);
-        cell.setCellValue("Ошибка");
-        //Запись в файл
-        try {
-            FileOutputStream fileOut = new FileOutputStream("Expirements\\ExpirementResults.xls");
-            wb.write(fileOut);
-            fileOut.close();
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-
         //HashMap для считывания параметров эксперимента
         Map<String, Integer> expirementparams = new HashMap<String, Integer>();
         //Коллекция для записи всех строк из файла
@@ -55,59 +33,111 @@ public class NNExperiments {
             System.out.println(ex.getMessage());
         }
         boolean biasOnOf = expirementparams.get("biasOnOff") == 1 ? true : false;
-        //Список для хранения всех параметров экспериментов
-        List<List<Integer>> allExpirementsNeurons = new LinkedList<>();
-        //Создание массива с возможными значениями количества нейронов
-        ArrayList<Integer> valuesofNeurons = new ArrayList<>();
-        for (int neuronsnum = expirementparams.get("minNeuronOnLayer"); neuronsnum < expirementparams.get("maxNeuronOnLayer") + 1; neuronsnum += expirementparams.get("stepNeuronOnLayer")) {
-            valuesofNeurons.add(neuronsnum);
+        if (expirementparams.get("startMode")==1){
+            //Создание книги для записи результатов теста
+            Workbook wb = new HSSFWorkbook();
+            //Создание листа для записи основных результатов
+            Sheet sheet = wb.createSheet("ErrorResult");
+            /*Row row = sheet.createRow(0);
+            Cell cell = row.createCell(0);
+            cell.setCellValue("Эксперимент");
+            cell = row.createCell(1);
+            cell.setCellValue("Время поиска");
+            cell = row.createCell(2);
+            cell.setCellValue("Количество эпох");
+            cell = row.createCell(3);
+            cell.setCellValue("Ошибка");*/
+            //Запись в файл
+            try {
+                FileOutputStream fileOut = new FileOutputStream("Expirements\\TestResults.xls");
+                wb.write(fileOut);
+                fileOut.close();
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+
+            NeuralNet nnet = new NeuralNet("NNetSettings.txt",
+                    1, (double) 1 / expirementparams.get("trainingAccuracy"),
+                    (expirementparams.get("trainingTimeLimit") * 1000), expirementparams.get("intialDataType"), biasOnOf);
+            nnet.Test();
+
         }
-        //Запуск просчета количества вариаций экспериментов по слоям
-        int countofLayers = 0;
-        for (int layersnum = expirementparams.get("minHiddenLayers"); layersnum < expirementparams.get("maxHiddenLayers") + 1; layersnum += expirementparams.get("stepHiddenLayers")) {
-            //Определяется необходимость комбинирования количества нейронов по слоям
-            if (expirementparams.get("combineNeuronsOnLayers") == 1) {
-                //Если комбинируется - запускается рекурсивный метод
-                int[] ijk = new int[layersnum];
-                allExpirementsNeurons = permutations(layersnum, layersnum, ijk, valuesofNeurons, allExpirementsNeurons);
-            } else {
-                //Если нет - на каждый слои добавляется одинаковое количество нейронов
-                for (int znachCount = 0; znachCount < valuesofNeurons.size(); znachCount++) {
-                    List<Integer> currResult = new LinkedList<>();
-                    for (int layersCount = 0; layersCount < layersnum; layersCount++) {
-                        currResult.add(valuesofNeurons.get(znachCount));
+        else {
+            //Создание книги для записи результатов экспериментов
+            Workbook wb = new HSSFWorkbook();
+            //Создание листа для записи основных результатов
+            Sheet sheet = wb.createSheet("TotalResult");
+            Row row = sheet.createRow(0);
+            Cell cell = row.createCell(0);
+            cell.setCellValue("Эксперимент");
+            cell = row.createCell(1);
+            cell.setCellValue("Время поиска");
+            cell = row.createCell(2);
+            cell.setCellValue("Количество эпох");
+            cell = row.createCell(3);
+            cell.setCellValue("Ошибка");
+            //Запись в файл
+            try {
+                FileOutputStream fileOut = new FileOutputStream("Expirements\\ExpirementResults.xls");
+                wb.write(fileOut);
+                fileOut.close();
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+            //Список для хранения всех параметров экспериментов
+            List<List<Integer>> allExpirementsNeurons = new LinkedList<>();
+            //Создание массива с возможными значениями количества нейронов
+            ArrayList<Integer> valuesofNeurons = new ArrayList<>();
+            for (int neuronsnum = expirementparams.get("minNeuronOnLayer"); neuronsnum < expirementparams.get("maxNeuronOnLayer") + 1; neuronsnum += expirementparams.get("stepNeuronOnLayer")) {
+                valuesofNeurons.add(neuronsnum);
+            }
+            //Запуск просчета количества вариаций экспериментов по слоям
+            int countofLayers = 0;
+            for (int layersnum = expirementparams.get("minHiddenLayers"); layersnum < expirementparams.get("maxHiddenLayers") + 1; layersnum += expirementparams.get("stepHiddenLayers")) {
+                //Определяется необходимость комбинирования количества нейронов по слоям
+                if (expirementparams.get("combineNeuronsOnLayers") == 1) {
+                    //Если комбинируется - запускается рекурсивный метод
+                    int[] ijk = new int[layersnum];
+                    allExpirementsNeurons = permutations(layersnum, layersnum, ijk, valuesofNeurons, allExpirementsNeurons);
+                } else {
+                    //Если нет - на каждый слои добавляется одинаковое количество нейронов
+                    for (int znachCount = 0; znachCount < valuesofNeurons.size(); znachCount++) {
+                        List<Integer> currResult = new LinkedList<>();
+                        for (int layersCount = 0; layersCount < layersnum; layersCount++) {
+                            currResult.add(valuesofNeurons.get(znachCount));
+                        }
+                        allExpirementsNeurons.add(currResult);
                     }
-                    allExpirementsNeurons.add(currResult);
                 }
             }
-        }
-        int k = 1;//Счетчик экспериментов
-        //Проверка
-        for (List<Integer> currentExpirement :
-                allExpirementsNeurons) {
-            //Создание файла с параметрами эксперимента
-            File outputfile = new File("NNetSettings.txt");
-            try (FileWriter writer = new FileWriter(outputfile, false)) {
-                //Цикл по количеству слоёв с записью нейронов на каждый слой
-                for (int neurons :
-                        currentExpirement) {
-                    writer.append(Integer.toString(neurons));
-                    writer.append('\n');
+            int k = 1;//Счетчик экспериментов
+            //Проверка
+            for (List<Integer> currentExpirement :
+                    allExpirementsNeurons) {
+                //Создание файла с параметрами эксперимента
+                File outputfile = new File("NNetSettings.txt");
+                try (FileWriter writer = new FileWriter(outputfile, false)) {
+                    //Цикл по количеству слоёв с записью нейронов на каждый слой
+                    for (int neurons :
+                            currentExpirement) {
+                        writer.append(Integer.toString(neurons));
+                        writer.append('\n');
+                    }
+                    writer.flush();
+                } catch (IOException ex) {
+                    System.out.println(ex.getMessage());
                 }
-                writer.flush();
-            } catch (IOException ex) {
-                System.out.println(ex.getMessage());
+                //Запуск экспериментов по количеству наблюдений
+                for (int i = 0; i < expirementparams.get("observationsPerExpirement"); i++) {
+                    System.out.println("Текущий эксперимент: " + k);
+                    //Запуск сети
+                    NeuralNet nnet = new NeuralNet("NNetSettings.txt",
+                            0, (double) 1 / expirementparams.get("trainingAccuracy"),
+                            (expirementparams.get("trainingTimeLimit") * 1000), expirementparams.get("intialDataType"), biasOnOf);
+                    nnet.Train();
+                }
+                k++;
             }
-            //Запуск экспериментов по количеству наблюдений
-            for (int i = 0; i < expirementparams.get("observationsPerExpirement"); i++) {
-                System.out.println("Текущий эксперимент: " + k);
-                //Запуск сети
-                NeuralNet nnet = new NeuralNet("NNetSettings.txt",
-                        "Train", (double) 1 / expirementparams.get("trainingAccuracy"),
-                        (expirementparams.get("trainingTimeLimit") * 1000), expirementparams.get("intialDataType"), biasOnOf);
-                nnet.Train();
-            }
-            k++;
         }
     }
 

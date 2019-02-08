@@ -39,16 +39,22 @@ class InputLayer {
 
     //Статический метод, возвращающий новый входной слой со значениями из Excel-файла ("InputData.xls")
     public static InputLayer InputDataFromExcel() {
-        InputLayer inputLayer = new InputLayer(1);
+        InputLayer inputLayer = new InputLayer(1,1);
 
 
         return inputLayer;
     }
 
     //Конструктор с загрузкой данных из БД/Excel
-    public InputLayer(Integer type) {
+    public InputLayer(Integer type, Integer TrainTestType) {
         //Если считывание исходных данных происходит из Excel
         if (type == 1) {
+            String TrainSet = "Trainset";
+            String ErrorSet = "Errorset";
+            if (TrainTestType == 1) {
+                TrainSet = "Testset";
+                ErrorSet = "Testerror";
+            }
             //Считывание книги в IntialData
             Workbook IntialData = new HSSFWorkbook();
             try {
@@ -59,7 +65,7 @@ class InputLayer {
 
             }
             //Считывание листа с trainset
-            Sheet sheet = ((HSSFWorkbook) IntialData).getSheet("Trainset");
+            Sheet sheet = ((HSSFWorkbook) IntialData).getSheet(TrainSet);
             //Инициализация массива trainsetDB. sheet.getLastRowNum()-получение последнего индекса по строкам, sheet.getRow(0).getLastCellNum() - получение последнего индекса по столбцам
             trainsetDB = new double[sheet.getLastRowNum()][sheet.getRow(0).getLastCellNum()];
             //Проход по всем строкам и столбцам и запись в trainset
@@ -70,7 +76,7 @@ class InputLayer {
                 }
             }
             //Считывание листа с errorset
-            sheet = ((HSSFWorkbook) IntialData).getSheet("Errorset");
+            sheet = ((HSSFWorkbook) IntialData).getSheet(ErrorSet);
             //Инициализация массива errorDB. sheet.getLastRowNum()-получение последнего индекса по строкам, sheet.getRow(0).getLastCellNum() - получение последнего индекса по столбцам
             //-1, т.к. первая строка не считается (там записаны названия)
             errorDB = new double[sheet.getLastRowNum()][sheet.getRow(0).getLastCellNum()];
