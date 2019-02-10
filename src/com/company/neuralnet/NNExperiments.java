@@ -75,7 +75,9 @@ public class NNExperiments {
             cell = row.createCell(2);
             cell.setCellValue("Количество эпох");
             cell = row.createCell(3);
-            cell.setCellValue("Ошибка");
+            cell.setCellValue("Ошибка обучения");
+            cell = row.createCell(4);
+            cell.setCellValue("Ошибка тестирования");
             //Запись в файл
             try {
                 FileOutputStream fileOut = new FileOutputStream("Expirements\\ExpirementResults.xls");
@@ -135,6 +137,7 @@ public class NNExperiments {
                             0, (double) 1 / expirementparams.get("trainingAccuracy"),
                             (expirementparams.get("trainingTimeLimit") * 1000), expirementparams.get("intialDataType"), biasOnOf);
                     nnet.Train();
+                    nnet.Test();
                 }
                 k++;
             }

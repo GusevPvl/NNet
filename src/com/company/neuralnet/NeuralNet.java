@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -167,14 +168,19 @@ public class NeuralNet {
         output_layer.WeightInitialize(MemoryMode.SET, "output");
 
         //Запись результатов обучения в файл
-        WriteResultsToFile(MillisToHours(stopTrainTime - startTrainTime), cost_list);
+        WriteTrainResultsToFile(MillisToHours(stopTrainTime - startTrainTime), cost_list);
     }
 
     //тестирование сети
     public void Test() {
+        input_layer = new InputLayer(1, 1);
+        //Массив для хранения фактических результатов по каждому тренировочному сету
+        ArrayList<double[]> allFactTestResult = new ArrayList<>();
+        //double[][] allFactTestResult=new double[input_layer.trainsetDB.length][input_layer.errorDB[1].length];
         System.out.println("Результаты тестирования сети" + input_layer.trainset.length);
         double[] temp_mses = new double[input_layer.errorDB.length];//массив для хранения ошибок итераций
         for (int i = 0; i < input_layer.trainsetDB.length; ++i) {
+            fact=new double[input_layer.errorDB[1].length];
             hidden_layers[0].Data(input_layer.trainsetDB[i]); //Как минимум 1 скрытый слой существует
             //Расчет с проходом по скрытым слоям
             for (int j = 1; j < hidden_layers.length; j++) {
@@ -192,11 +198,13 @@ public class NeuralNet {
             double mse = GetMSE(errors);
             for (int j = 0; j < fact.length; ++j)
                 System.out.print(fact[j] + " ");
+            allFactTestResult.add(fact);
             System.out.println();
             System.out.println("Ошибка сета = " + mse);
         }
         String formattedMSE = new DecimalFormat("#0.000").format(GetCost(temp_mses));
         System.out.println("Общая ошибка = " + formattedMSE);
+        WriteTestResultsToFile(formattedMSE, allFactTestResult);
     }
 
     //Метод преобразования миллисекунд в ЧЧ:ММ:СС.ССС
@@ -211,8 +219,62 @@ public class NeuralNet {
         return returntext;
     }
 
+    //Метод записи результатов тестирования сети
+    private void WriteTestResultsToFile(String testMSE, ArrayList<double[]> allFactTestResult) {
+        //Запись результатов тестирования в таблицу Excel
+        Workbook wb = new HSSFWorkbook();
+        //Попытка открыть файл
+        try {
+            POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream("Expirements\\ExpirementResults.xls"));
+            wb = new HSSFWorkbook(fs);
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        //Открытие листа для записи общей ошибки тестирования
+        Sheet sheet = ((HSSFWorkbook) wb).getSheet("TotalResult");
+        //Вычисление последнего занятого столбца в листе с основными результатами
+        int rownum = 0;
+        for (Row row : sheet) {
+            rownum = row.getRowNum();
+        }
+        //Создание названия эксперимента для открытия нужного листа книги
+        String expName = "";
+        //Цикл для создания названия файла с результатами/названия строки в Excel
+        for (int i = 0; i < hidden_layers.length; i++) {
+            expName += "_" + hidden_layers[i].numofneurons;
+        }
+        expName += "Test";//добавление номера строки для идентификации, в случае нескольких запусков одного эксперимента
+        Row row = sheet.getRow(rownum);
+        Cell cell;
+        cell = row.createCell(4);
+        cell.setCellValue(testMSE);
+        //Создание листа для записи экспериментов
+        Sheet expSheet = wb.createSheet(expName);
+        int rowCount = 0;//подсчет строк для записи
+        try {
+            //Проход по всем результатам тестирования сети
+            for (int i = 0; i < allFactTestResult.size(); i++) {
+                row = expSheet.createRow(i);
+                for (int j = 0; j < allFactTestResult.get(i).length; j++) {
+
+                    cell = row.createCell(j);
+                    cell.setCellValue(allFactTestResult.get(i)[j]);
+                    rowCount++;
+                }
+            }
+            //Попытка записи файла
+            FileOutputStream fileOut = new FileOutputStream("Expirements\\ExpirementResults.xls");
+            wb.write(fileOut);
+            fileOut.close();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
+    }
+
     //Метод записи результатов обучения сети
-    private void WriteResultsToFile(String text, LinkedList<Double> error_list) {
+    private void WriteTrainResultsToFile(String trainTime, LinkedList<Double> error_list) {
         //Запись результатов в таблицу Excel
         Workbook wb = new HSSFWorkbook();
         //Попытка открыть файл
@@ -237,11 +299,11 @@ public class NeuralNet {
             expName += "_" + hidden_layers[i].numofneurons;
         }
         Row row = sheet.createRow(rownum + 1);
-        expName += row.getRowNum();
+        expName += row.getRowNum();//добавление номера строки для идентификации, в случае нескольких запусков одного эксперимента
         Cell cell = row.createCell(0);
         cell.setCellValue(expName);
         cell = row.createCell(1);
-        cell.setCellValue(text);
+        cell.setCellValue(trainTime);
         cell = row.createCell(2);
         cell.setCellValue(error_list.size());
         cell = row.createCell(3);
