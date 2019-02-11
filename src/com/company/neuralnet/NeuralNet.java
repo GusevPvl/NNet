@@ -412,7 +412,7 @@ public class NeuralNet {
                 line = br.readLine();//Считывание количества нейронов остальных скрытых слоев
                 hiddenfile = new File("hidden" + i + ".txt");
                 try (FileWriter writer = new FileWriter(hiddenfile, false)) {
-                    for (int l = 0; l < Integer.valueOf(line) * prevLayerNeurons + bias; ++l) {
+                    for (int l = 0; l < Integer.valueOf(line) * (prevLayerNeurons + bias); ++l) {
                         writer.append(Double.toString(0.0));
                         writer.append('\n');
                     }

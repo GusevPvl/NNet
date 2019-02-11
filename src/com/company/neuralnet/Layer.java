@@ -36,7 +36,7 @@ abstract class Layer {//type используется для связи с од�
     protected boolean biasOn;
     protected int numofneurons;//число нейронов текущего слоя
     protected int numofprevneurons;//число нейронов предыдущего слоя
-    protected final double learningrate = 0.01d;//скорость обучения
+    protected final double learningrate = 0.005d;//скорость обучения
     Neuron[] neurons;
 
     public Neuron[] getNeurons() {
