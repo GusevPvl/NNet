@@ -109,6 +109,8 @@ public class NeuralNet {
     //обучение
     public void Train()//backpropagation method
     {
+        int epochCounter = 0;//Подсчет количества эпоз обучения
+        double bestCost = 1.0;//Для просмотра текущего лучшего результата ошибки
         long startTrainTime = System.currentTimeMillis(); //Запись времени начала обчения
         final double threshold = 0.001;//порог ошибки
         double[] temp_mses = new double[input_layer.errorDB.length];//массив для хранения ошибок итераций
@@ -147,15 +149,21 @@ public class NeuralNet {
             temp_cost = GetCost(temp_mses);//вычисление ошибки по эпохе
             cost_list.add(temp_cost);//Запись ошибки по эпохе в коллекцию
             //debugging output
+            bestCost = bestCost > temp_cost ? temp_cost : bestCost;
+            String formattedTempCost = new DecimalFormat("#0.00000000").format(temp_cost);
+            String formattedBestCost = new DecimalFormat("#0.00000000").format(bestCost);
             System.out.print("\r");
             System.out.print(cost_list.size() + " : ");
-            System.out.print(temp_cost);
+            System.out.print("best = " + formattedBestCost);
+            System.out.print(" : temp = " + formattedTempCost);
             //Установка предельного времени обучения сети
             if (((System.currentTimeMillis() - startTrainTime) > trainingTimeLimit) && trainingTimeLimit != 0) {
                 System.out.println();
                 System.out.print("Превышено время обучения");
                 break;
             }
+            //Прерывание по количеству эпох
+
         } while (temp_cost > trainingAccuracy);
         System.out.println();
         long stopTrainTime = System.currentTimeMillis(); //Запись времени завершения обучения
@@ -180,7 +188,7 @@ public class NeuralNet {
         System.out.println("Результаты тестирования сети" + input_layer.trainset.length);
         double[] temp_mses = new double[input_layer.errorDB.length];//массив для хранения ошибок итераций
         for (int i = 0; i < input_layer.trainsetDB.length; ++i) {
-            fact=new double[input_layer.errorDB[1].length];
+            fact = new double[input_layer.errorDB[1].length];
             hidden_layers[0].Data(input_layer.trainsetDB[i]); //Как минимум 1 скрытый слой существует
             //Расчет с проходом по скрытым слоям
             for (int j = 1; j < hidden_layers.length; j++) {

@@ -9,5 +9,8 @@ trainingAccuracy:1000
 trainingTimeLimit:0
 intialDataType:1
 observationsPerExpirement:1
-biasOnOff:1
+biasOnOff:0
 startMode:0
+learningRate:100
+epochCountLimit:0
+fixedExpirement:1
