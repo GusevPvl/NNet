@@ -2,6 +2,7 @@ package com.company;
 
 import com.company.neuralnet.*;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.*;
 

@@ -15,7 +15,8 @@ abstract class Layer {//type используется для связи с од�
     public Layer() {
     }
 
-    protected Layer(int non, int nopn, NeuronType nt, String type, boolean bias) {
+    protected Layer(int non, int nopn, NeuronType nt, String type, boolean bias, double learningrate) {
+        this.learningrate = learningrate;
         biasOn = bias;
         numofneurons = non;
         //Включение нейрона смещения. Фактически нейрон смещения не находится на предыдущем слое. Текущий слой его "подразумевает" и имеет связь с ним.
@@ -36,7 +37,7 @@ abstract class Layer {//type используется для связи с од�
     protected boolean biasOn;
     protected int numofneurons;//число нейронов текущего слоя
     protected int numofprevneurons;//число нейронов предыдущего слоя
-    protected final double learningrate = 0.005d;//скорость обучения
+    protected double learningrate;//скорость обучения
     Neuron[] neurons;
 
     public Neuron[] getNeurons() {

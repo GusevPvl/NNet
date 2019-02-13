@@ -30,21 +30,27 @@ public class NeuralNet {
     double trainingAccuracy;
     //Предельное время обучения
     int trainingTimeLimit;
+    //Предельное количество эпох обучения
+    int epochCountLimit;
+    //Скорость обучения
+    int learningrate;
 
     //Стандартный конструктор
     public NeuralNet() {
         //все слои сети
         input_layer = new InputLayer(1, 1); //Инициализация входного слоя - задается отдельным классом
-        hidden_layer = new HiddenLayer(200, input_layer.trainsetDB[1].length, NeuronType.hidden, "hidden", true); //Инициализация скрытого слоя
-        output_layer = new OutputLayer(input_layer.errorDB[1].length, 200, NeuronType.output, "output", true); //Ининциализация выходного слоя
+        hidden_layer = new HiddenLayer(200, input_layer.trainsetDB[1].length, NeuronType.hidden, "hidden", true, 0.001); //Инициализация скрытого слоя
+        output_layer = new OutputLayer(input_layer.errorDB[1].length, 200, NeuronType.output, "output", true, 0.001); //Ининциализация выходного слоя
         fact = new double[input_layer.errorDB[1].length];//Инициализация массива фактических значений
     }
 
     //Конструктор для создания произвольного количества скрытых слоёв с заданным количеством нейронов
-    public NeuralNet(String SettingsFile, Integer mode, double trainingAccuracy, int trainingTimeLimit, Integer IntialDataType, boolean bias) {
-        //Задание точность и времени обучения
+    public NeuralNet(String SettingsFile, Integer mode, double trainingAccuracy, int trainingTimeLimit,
+                     Integer IntialDataType, boolean bias, int epochCountLimit, double learningrate) {
+        //Задание точности, времени обучения, максимальное количество эпох, скорость обучения
         this.trainingAccuracy = trainingAccuracy;
         this.trainingTimeLimit = trainingTimeLimit;
+        this.epochCountLimit = epochCountLimit;
         input_layer = new InputLayer(IntialDataType, mode); //Инициализация входного слоя - задается отдельным классом
         fact = new double[input_layer.errorDB[1].length];//Инициализация массива фактических значений
         List<String> NeuronsOnHiddenLayers;
@@ -55,15 +61,15 @@ public class NeuralNet {
             if (mode == 0)
                 WeightsFilesInitialize(SettingsFile, NeuronsOnHiddenLayers.size(), bias ? 1 : 0);
             //Создание первого скрытого слоя, количество предыдущих нейронов - количество нейронов входного слоя
-            hidden_layers[0] = new HiddenLayer(Integer.valueOf(NeuronsOnHiddenLayers.get(0)), input_layer.trainsetDB[1].length, NeuronType.hidden, "hidden", bias);
+            hidden_layers[0] = new HiddenLayer(Integer.valueOf(NeuronsOnHiddenLayers.get(0)), input_layer.trainsetDB[1].length, NeuronType.hidden, "hidden", bias, learningrate);
             //Создание остальных скрытых слоев
             for (int i = 1; i < NeuronsOnHiddenLayers.size(); i++) {
-                hidden_layers[i] = new HiddenLayer(Integer.valueOf(NeuronsOnHiddenLayers.get(i)), hidden_layers[i - 1].numofneurons, NeuronType.hidden, "hidden" + i, bias);
+                hidden_layers[i] = new HiddenLayer(Integer.valueOf(NeuronsOnHiddenLayers.get(i)), hidden_layers[i - 1].numofneurons, NeuronType.hidden, "hidden" + i, bias, learningrate);
             }
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
         }
-        output_layer = new OutputLayer(input_layer.errorDB[1].length, hidden_layers[hidden_layers.length - 1].numofneurons, NeuronType.output, "output", bias); //Ининциализация выходного слоя//НЕЙРОН СМЕЩЕНИЯ
+        output_layer = new OutputLayer(input_layer.errorDB[1].length, hidden_layers[hidden_layers.length - 1].numofneurons, NeuronType.output, "output", bias, learningrate); //Ининциализация выходного слоя//НЕЙРОН СМЕЩЕНИЯ
     }
 
     //ошибка одной итерации обучения
@@ -156,14 +162,13 @@ public class NeuralNet {
             System.out.print(cost_list.size() + " : ");
             System.out.print("best = " + formattedBestCost);
             System.out.print(" : temp = " + formattedTempCost);
-            //Установка предельного времени обучения сети
-            if (((System.currentTimeMillis() - startTrainTime) > trainingTimeLimit) && trainingTimeLimit != 0) {
+            epochCounter++;
+            //Установка предельного времени обучения сети/количества эпох
+            if (((epochCounter==epochCountLimit) && epochCountLimit!=0)||(((System.currentTimeMillis() - startTrainTime) > trainingTimeLimit) && trainingTimeLimit != 0)) {
                 System.out.println();
-                System.out.print("Превышено время обучения");
+                System.out.print("Превышено количество эпох/время обучения");
                 break;
             }
-            //Прерывание по количеству эпох
-
         } while (temp_cost > trainingAccuracy);
         System.out.println();
         long stopTrainTime = System.currentTimeMillis(); //Запись времени завершения обучения

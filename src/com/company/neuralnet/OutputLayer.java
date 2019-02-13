@@ -1,8 +1,8 @@
 package com.company.neuralnet;
 
 class OutputLayer extends Layer {
-    public OutputLayer(int non, int nopn, NeuronType nt, String type, boolean bias) {
-        super(non, nopn, nt, type, bias);
+    public OutputLayer(int non, int nopn, NeuronType nt, String type, boolean bias, double learningrate) {
+        super(non, nopn, nt, type, bias, learningrate);
     }
 
     public void OutputCalculate(NeuralNet net, Layer nextLayer) {

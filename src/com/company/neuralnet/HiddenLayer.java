@@ -1,8 +1,8 @@
 package com.company.neuralnet;
 
 class HiddenLayer extends Layer {
-    public HiddenLayer(int non, int nopn, NeuronType nt, String type, boolean bias) {
-        super(non, nopn, nt, type, bias);
+    public HiddenLayer(int non, int nopn, NeuronType nt, String type, boolean bias, double learningrate) {
+        super(non, nopn, nt, type, bias, learningrate);
 
     }
 
@@ -30,5 +30,6 @@ class HiddenLayer extends Layer {
                 //Новый вес = старый+скорость обучения*входной сигнал*дельту
                 neurons[i].weights[n] += learningrate * neurons[i].inputs[n] * neurons[i].Gradientor(0, neurons[i].Derivativator(neurons[i].Output()), gr_sums[i]);
         return gr_sum;
+
     }
 }
