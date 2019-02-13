@@ -64,28 +64,36 @@ public class NNExperiments {
             nnet.Test();
 
         } else {
-            //Создание книги для записи результатов экспериментов
-            Workbook wb = new HSSFWorkbook();
-            //Создание листа для записи основных результатов
-            Sheet sheet = wb.createSheet("TotalResult");
-            Row row = sheet.createRow(0);
-            Cell cell = row.createCell(0);
-            cell.setCellValue("Эксперимент");
-            cell = row.createCell(1);
-            cell.setCellValue("Время поиска");
-            cell = row.createCell(2);
-            cell.setCellValue("Количество эпох");
-            cell = row.createCell(3);
-            cell.setCellValue("Ошибка обучения");
-            cell = row.createCell(4);
-            cell.setCellValue("Ошибка тестирования");
-            //Запись в файл
-            try {
-                FileOutputStream fileOut = new FileOutputStream("Expirements\\ExpirementResults.xls");
-                wb.write(fileOut);
-                fileOut.close();
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
+            if (expirementparams.get("newExpirementBook")==1) {
+                //Создание книги для записи результатов экспериментов
+                Workbook wb = new HSSFWorkbook();
+                //Создание листа для записи основных результатов
+                Sheet sheet = wb.createSheet("TotalResult");
+                Row row = sheet.createRow(0);
+                Cell cell = row.createCell(0);
+                cell.setCellValue("Эксперимент");
+                cell = row.createCell(1);
+                cell.setCellValue("Время поиска");
+                cell = row.createCell(2);
+                cell.setCellValue("Количество эпох");
+                cell = row.createCell(3);
+                cell.setCellValue("Ошибка обучения");
+                cell = row.createCell(4);
+                cell.setCellValue("Ошибка тестирования");
+                cell = row.createCell(5);
+                cell.setCellValue("Заданная точность");
+                cell = row.createCell(6);
+                cell.setCellValue("Скорость обучения");
+                cell = row.createCell(7);
+                cell.setCellValue("Нейрон смещения");
+                //Запись в файл
+                try {
+                    FileOutputStream fileOut = new FileOutputStream("Expirements\\ExpirementResults.xls");
+                    wb.write(fileOut);
+                    fileOut.close();
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                }
             }
             //Список для хранения всех параметров экспериментов
             List<List<Integer>> allExpirementsNeurons = new LinkedList<>();

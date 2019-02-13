@@ -14,3 +14,4 @@ startMode: 0 - train, 1 - test
 learningRate:100 - скорость обучения, определяется как 1/заданную скорость
 epochCountLimit:0 - предел количества эпох обучения, 0 - без ограничений
 fixedExpirement: 0 - стандартный запуск, 1 - слои берутся из файла FixedExpirement
+newExpirementBook:0 - добавление в текущую книгу экспериментов, 1 - в новую

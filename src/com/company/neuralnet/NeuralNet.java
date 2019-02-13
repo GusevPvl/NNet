@@ -29,11 +29,13 @@ public class NeuralNet {
     //Точность обучения
     double trainingAccuracy;
     //Предельное время обучения
-    int trainingTimeLimit;
+    private int trainingTimeLimit;
     //Предельное количество эпох обучения
-    int epochCountLimit;
-    //Скорость обучения
-    int learningrate;
+    private int epochCountLimit;
+    //Скорость обучения - только для записи в файл, в слои передается напрямую
+    private double learningrate;
+    //Нейрон смещения - для записи в файл с результатами
+    private boolean bias;
 
     //Стандартный конструктор
     public NeuralNet() {
@@ -51,6 +53,8 @@ public class NeuralNet {
         this.trainingAccuracy = trainingAccuracy;
         this.trainingTimeLimit = trainingTimeLimit;
         this.epochCountLimit = epochCountLimit;
+        this.learningrate = learningrate;
+        this.bias=bias;
         input_layer = new InputLayer(IntialDataType, mode); //Инициализация входного слоя - задается отдельным классом
         fact = new double[input_layer.errorDB[1].length];//Инициализация массива фактических значений
         List<String> NeuronsOnHiddenLayers;
@@ -164,7 +168,7 @@ public class NeuralNet {
             System.out.print(" : temp = " + formattedTempCost);
             epochCounter++;
             //Установка предельного времени обучения сети/количества эпох
-            if (((epochCounter==epochCountLimit) && epochCountLimit!=0)||(((System.currentTimeMillis() - startTrainTime) > trainingTimeLimit) && trainingTimeLimit != 0)) {
+            if (((epochCounter == epochCountLimit) && epochCountLimit != 0) || (((System.currentTimeMillis() - startTrainTime) > trainingTimeLimit) && trainingTimeLimit != 0)) {
                 System.out.println();
                 System.out.print("Превышено количество эпох/время обучения");
                 break;
@@ -257,7 +261,7 @@ public class NeuralNet {
         for (int i = 0; i < hidden_layers.length; i++) {
             expName += "_" + hidden_layers[i].numofneurons;
         }
-        expName += "Test";//добавление номера строки для идентификации, в случае нескольких запусков одного эксперимента
+        expName += sheet.getLastRowNum()+"Test";//добавление номера строки для идентификации, в случае нескольких запусков одного эксперимента
         Row row = sheet.getRow(rownum);
         Cell cell;
         cell = row.createCell(4);
@@ -321,6 +325,12 @@ public class NeuralNet {
         cell.setCellValue(error_list.size());
         cell = row.createCell(3);
         cell.setCellValue(String.valueOf(error_list.getLast()));
+        cell = row.createCell(5);
+        cell.setCellValue(trainingAccuracy);
+        cell = row.createCell(6);
+        cell.setCellValue(learningrate);
+        cell = row.createCell(7);
+        cell.setCellValue(String.valueOf(bias));
         //Запись весов скрытых слоев
         Sheet expSheet = wb.createSheet(expName);
         int rowsNum = 0;
@@ -426,7 +436,7 @@ public class NeuralNet {
                 hiddenfile = new File("hidden" + i + ".txt");
                 try (FileWriter writer = new FileWriter(hiddenfile, false)) {
                     for (int l = 0; l < Integer.valueOf(line) * (prevLayerNeurons + bias); ++l) {
-                        writer.append(Double.toString(0.0));
+                        writer.append(Double.toString(0.0));//Math.sin(l*5)/15));
                         writer.append('\n');
                     }
                     writer.flush();
