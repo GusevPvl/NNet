@@ -194,7 +194,7 @@ public class NeuralNet {
         //Массив для хранения фактических результатов по каждому тренировочному сету
         ArrayList<double[]> allFactTestResult = new ArrayList<>();
         //double[][] allFactTestResult=new double[input_layer.trainsetDB.length][input_layer.errorDB[1].length];
-        System.out.println("Результаты тестирования сети" + input_layer.trainset.length);
+        //System.out.println("Результаты тестирования сети" + input_layer.trainset.length);
         double[] temp_mses = new double[input_layer.errorDB.length];//массив для хранения ошибок итераций
         for (int i = 0; i < input_layer.trainsetDB.length; ++i) {
             fact = new double[input_layer.errorDB[1].length];
@@ -214,13 +214,13 @@ public class NeuralNet {
             //Получение среднеквадратичной ошибки текущей итерации
             double mse = GetMSE(errors);
             for (int j = 0; j < fact.length; ++j)
-                System.out.print(fact[j] + " ");
+                //System.out.print(fact[j] + " ");
             allFactTestResult.add(fact);
-            System.out.println();
-            System.out.println("Ошибка сета = " + mse);
+            //System.out.println();
+            //System.out.println("Ошибка сета = " + mse);
         }
         String formattedMSE = new DecimalFormat("#0.000").format(GetCost(temp_mses));
-        System.out.println("Общая ошибка = " + formattedMSE);
+        System.out.println("Общая ошибка тестирования = " + formattedMSE);
         WriteTestResultsToFile(formattedMSE, allFactTestResult);
     }
 
