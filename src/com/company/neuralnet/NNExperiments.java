@@ -34,6 +34,7 @@ public class NNExperiments {
         }
         boolean biasOnOf = expirementparams.get("biasOnOff") == 1 ? true : false;
         double learningrate = (double) 1 / expirementparams.get("learningRate");
+        //Определение: тест или тренировка
         if (expirementparams.get("startMode") == 1) {
             //Создание книги для записи результатов теста
             Workbook wb = new HSSFWorkbook();
@@ -64,7 +65,8 @@ public class NNExperiments {
             nnet.Test();
 
         } else {
-            if (expirementparams.get("newExpirementBook")==1) {
+            //Определение необходимости создания новой книги
+            if (expirementparams.get("newExpirementBook") == 1) {
                 //Создание книги для записи результатов экспериментов
                 Workbook wb = new HSSFWorkbook();
                 //Создание листа для записи основных результатов
@@ -86,6 +88,8 @@ public class NNExperiments {
                 cell.setCellValue("Скорость обучения");
                 cell = row.createCell(7);
                 cell.setCellValue("Нейрон смещения");
+                cell = row.createCell(8);
+                cell.setCellValue("Начальные значения");
                 //Запись в файл
                 try {
                     FileOutputStream fileOut = new FileOutputStream("Expirements\\ExpirementResults.xls");
@@ -146,35 +150,55 @@ public class NNExperiments {
                     }
                 }
             }
-            int k = 1;//Счетчик экспериментов
-            //Запуск экспериментов
-            for (List<Integer> currentExpirement :
-                    allExpirementsNeurons) {
-                //Создание файла с параметрами текущего эксперимента
-                File outputfile = new File("NNetSettings.txt");
-                try (FileWriter writer = new FileWriter(outputfile, false)) {
-                    //Цикл по количеству слоёв с записью нейронов на каждый слой
-                    for (int neurons :
-                            currentExpirement) {
-                        writer.append(Integer.toString(neurons));
-                        writer.append('\n');
+            //Список точности обучения по экспериментам
+            List<Double> trainingAccuracyExpirement = new LinkedList<>();
+            trainingAccuracyExpirement.add((double) 1 / expirementparams.get("trainingAccuracy"));
+            for (int step = 1; step < expirementparams.get("stepstrainingAccuracy"); step++) {
+                trainingAccuracyExpirement.add((double) 1 / expirementparams.get("trainingAccuracy")/(expirementparams.get("dividertrainingAccuracy")*step));
+            }
+            //Список скорости обучения по экспериментам
+            List<Double> learingrateExpirement=new LinkedList<>();
+            learingrateExpirement.add((double) 1 / expirementparams.get("learningRate"));
+            for (int step = 1; step < expirementparams.get("stepslearningRate"); step++) {
+                learingrateExpirement.add((double) 1 / expirementparams.get("learningRate")/(expirementparams.get("dividerlearningRate")*step));
+            }
+            //Запуск экспериментов по точности обучения
+            for (double trainingAccuracy:
+                 trainingAccuracyExpirement) {
+                //Запуск экспериментов по скорости обучения
+                for (double learningrateExp:
+                     learingrateExpirement) {
+                    int k = 1;//Счетчик экспериментов
+                    //Запуск экспериментов
+                    for (List<Integer> currentExpirement :
+                            allExpirementsNeurons) {
+                        //Создание файла с параметрами текущего эксперимента
+                        File outputfile = new File("NNetSettings.txt");
+                        try (FileWriter writer = new FileWriter(outputfile, false)) {
+                            //Цикл по количеству слоёв с записью нейронов на каждый слой
+                            for (int neurons :
+                                    currentExpirement) {
+                                writer.append(Integer.toString(neurons));
+                                writer.append('\n');
+                            }
+                            writer.flush();
+                        } catch (IOException ex) {
+                            System.out.println(ex.getMessage());
+                        }
+                        //Запуск экспериментов по количеству наблюдений
+                        for (int i = 0; i < expirementparams.get("observationsPerExpirement"); i++) {
+                            System.out.println("Текущий эксперимент: " + k);
+                            //Запуск сети
+                            NeuralNet nnet = new NeuralNet("NNetSettings.txt",
+                                    0, trainingAccuracy,
+                                    (expirementparams.get("trainingTimeLimit") * 1000), expirementparams.get("intialDataType"), biasOnOf,
+                                    expirementparams.get("epochCountLimit"), learningrateExp);
+                            nnet.Train();
+                            nnet.Test();
+                        }
+                        k++;
                     }
-                    writer.flush();
-                } catch (IOException ex) {
-                    System.out.println(ex.getMessage());
                 }
-                //Запуск экспериментов по количеству наблюдений
-                for (int i = 0; i < expirementparams.get("observationsPerExpirement"); i++) {
-                    System.out.println("Текущий эксперимент: " + k);
-                    //Запуск сети
-                    NeuralNet nnet = new NeuralNet("NNetSettings.txt",
-                            0, (double) 1 / expirementparams.get("trainingAccuracy"),
-                            (expirementparams.get("trainingTimeLimit") * 1000), expirementparams.get("intialDataType"), biasOnOf,
-                            expirementparams.get("epochCountLimit"), learningrate);
-                    nnet.Train();
-                    nnet.Test();
-                }
-                k++;
             }
         }
     }

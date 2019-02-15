@@ -331,6 +331,8 @@ public class NeuralNet {
         cell.setCellValue(learningrate);
         cell = row.createCell(7);
         cell.setCellValue(String.valueOf(bias));
+        cell = row.createCell(8);
+        cell.setCellValue("zero");
         //Запись весов скрытых слоев
         Sheet expSheet = wb.createSheet(expName);
         int rowsNum = 0;
