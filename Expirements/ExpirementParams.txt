@@ -9,9 +9,9 @@ trainingAccuracy:1000
 trainingTimeLimit:0
 intialDataType:1
 observationsPerExpirement:1
-biasOnOff:0
+biasOnOff:1
 startMode:0
-learningRate:50
+learningRate:1000
 epochCountLimit:0
-fixedExpirement:0
-newExpirementBook:1
+fixedExpirement:1
+newExpirementBook:0

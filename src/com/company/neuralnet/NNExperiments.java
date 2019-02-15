@@ -150,7 +150,7 @@ public class NNExperiments {
             //Запуск экспериментов
             for (List<Integer> currentExpirement :
                     allExpirementsNeurons) {
-                //Создание файла с параметрами эксперимента
+                //Создание файла с параметрами текущего эксперимента
                 File outputfile = new File("NNetSettings.txt");
                 try (FileWriter writer = new FileWriter(outputfile, false)) {
                     //Цикл по количеству слоёв с записью нейронов на каждый слой
