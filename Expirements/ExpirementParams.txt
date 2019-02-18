@@ -3,7 +3,7 @@ maxHiddenLayers:1
 minNeuronOnLayer:100
 maxNeuronOnLayer:500
 stepHiddenLayers:1
-stepNeuronOnLayer:20
+stepNeuronOnLayer:25
 combineNeuronsOnLayers:1
 trainingAccuracy:200
 dividertrainingAccuracy:2
@@ -15,7 +15,7 @@ biasOnOff:1
 startMode:0
 learningRate:100
 dividerlearningRate:2
-stepslearningRate:3
+stepslearningRate:1
 epochCountLimit:1500
 fixedExpirement:0
 newExpirementBook:1
