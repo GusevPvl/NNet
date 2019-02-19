@@ -332,7 +332,7 @@ public class NeuralNet {
         cell = row.createCell(7);
         cell.setCellValue(String.valueOf(bias));
         cell = row.createCell(8);
-        cell.setCellValue("zero");
+        cell.setCellValue("zero-true");
         //Запись весов скрытых слоев
         Sheet expSheet = wb.createSheet(expName);
         int rowsNum = 0;
@@ -424,7 +424,7 @@ public class NeuralNet {
             File hiddenfile = new File("hidden.txt");
             try (FileWriter writer = new FileWriter(hiddenfile, false)) {
                 for (int l = 0; l < Integer.valueOf(line) * (input_layer.trainsetDB[1].length + bias); ++l) {
-                    writer.append(Double.toString(Math.sin(l*5)/15));
+                    writer.append(Double.toString(0));//Math.sin(l*5)/15));
                     writer.append('\n');
                 }
                 writer.flush();
@@ -438,7 +438,7 @@ public class NeuralNet {
                 hiddenfile = new File("hidden" + i + ".txt");
                 try (FileWriter writer = new FileWriter(hiddenfile, false)) {
                     for (int l = 0; l < Integer.valueOf(line) * (prevLayerNeurons + bias); ++l) {
-                        writer.append(Double.toString(Math.sin(l*5)/15));
+                        writer.append(Double.toString(0));//Math.sin(l*5)/15));
                         writer.append('\n');
                     }
                     writer.flush();
@@ -454,7 +454,7 @@ public class NeuralNet {
         File outputfile = new File("output.txt");
         try (FileWriter writer = new FileWriter(outputfile, false)) {
             for (int l = 0; l < (prevLayerNeurons + bias) * input_layer.errorDB[1].length; ++l) {
-                writer.append(Double.toString(Math.sin(l*5)/15));
+                writer.append(Double.toString(0));//Math.sin(l*5)/15));
                 writer.append('\n');
             }
             writer.flush();
