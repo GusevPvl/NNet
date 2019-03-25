@@ -264,7 +264,7 @@ public class NeuralNet {
         expName += sheet.getLastRowNum()+"Test";//добавление номера строки для идентификации, в случае нескольких запусков одного эксперимента
         Row row = sheet.getRow(rownum);
         Cell cell;
-        cell = row.createCell(4);
+        cell = row.createCell(5);
         cell.setCellValue(testMSE);
         //Создание листа для записи экспериментов
         Sheet expSheet = wb.createSheet(expName);
@@ -320,18 +320,20 @@ public class NeuralNet {
         Cell cell = row.createCell(0);
         cell.setCellValue(expName);
         cell = row.createCell(1);
-        cell.setCellValue(trainTime);
+        cell.setCellValue(hidden_layers[0].numofneurons);
         cell = row.createCell(2);
-        cell.setCellValue(error_list.size());
+        cell.setCellValue(trainTime);
         cell = row.createCell(3);
+        cell.setCellValue(error_list.size());
+        cell = row.createCell(4);
         cell.setCellValue(String.valueOf(error_list.getLast()));
-        cell = row.createCell(5);
-        cell.setCellValue(trainingAccuracy);
         cell = row.createCell(6);
-        cell.setCellValue(learningrate);
+        cell.setCellValue(trainingAccuracy);
         cell = row.createCell(7);
-        cell.setCellValue(String.valueOf(bias));
+        cell.setCellValue(learningrate);
         cell = row.createCell(8);
+        cell.setCellValue(String.valueOf(bias));
+        cell = row.createCell(9);
         cell.setCellValue("zero-true");
         //Запись весов скрытых слоев
         Sheet expSheet = wb.createSheet(expName);

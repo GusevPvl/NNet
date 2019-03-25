@@ -75,20 +75,22 @@ public class NNExperiments {
                 Cell cell = row.createCell(0);
                 cell.setCellValue("Эксперимент");
                 cell = row.createCell(1);
-                cell.setCellValue("Время поиска");
+                cell.setCellValue("Количество нейронов 1 скрытого слоя");
                 cell = row.createCell(2);
-                cell.setCellValue("Количество эпох");
+                cell.setCellValue("Время поиска");
                 cell = row.createCell(3);
-                cell.setCellValue("Ошибка обучения");
+                cell.setCellValue("Количество эпох");
                 cell = row.createCell(4);
-                cell.setCellValue("Ошибка тестирования");
+                cell.setCellValue("Ошибка обучения");
                 cell = row.createCell(5);
-                cell.setCellValue("Заданная точность");
+                cell.setCellValue("Ошибка тестирования");
                 cell = row.createCell(6);
-                cell.setCellValue("Скорость обучения");
+                cell.setCellValue("Заданная точность");
                 cell = row.createCell(7);
-                cell.setCellValue("Нейрон смещения");
+                cell.setCellValue("Скорость обучения");
                 cell = row.createCell(8);
+                cell.setCellValue("Нейрон смещения");
+                cell = row.createCell(9);
                 cell.setCellValue("Начальные значения");
                 //Запись в файл
                 try {
