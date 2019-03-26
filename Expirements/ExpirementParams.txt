@@ -7,7 +7,7 @@ stepNeuronOnLayer:25
 combineNeuronsOnLayers:1
 trainingAccuracy:1000
 dividertrainingAccuracy:2
-stepstrainingAccuracy:5
+stepstrainingAccuracy:2
 trainingTimeLimit:0
 intialDataType:1
 observationsPerExpirement:1
@@ -15,7 +15,8 @@ biasOnOff:0
 startMode:0
 learningRate:50
 dividerlearningRate:2
-stepslearningRate:5
-epochCountLimit:1500
+stepslearningRate:2
+epochCountLimit:1
 fixedExpirement:0
 newExpirementBook:1
+writeAllResults:2

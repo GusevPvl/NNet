@@ -61,7 +61,7 @@ public class NNExperiments {
             NeuralNet nnet = new NeuralNet("NNetSettings.txt",
                     1, (double) 1 / expirementparams.get("trainingAccuracy"),
                     (expirementparams.get("trainingTimeLimit") * 1000), expirementparams.get("intialDataType"), biasOnOf,
-                    expirementparams.get("epochCountLimit"), learningrate);
+                    expirementparams.get("epochCountLimit"), learningrate,expirementparams.get("writeAllResults"));
             nnet.Test();
 
         } else {
@@ -164,13 +164,16 @@ public class NNExperiments {
             for (int step = 1; step < expirementparams.get("stepslearningRate"); step++) {
                 learingrateExpirement.add((double) 1 / expirementparams.get("learningRate")/(expirementparams.get("dividerlearningRate")*step));
             }
+            //Всего экспериментов
+            int expamount = trainingAccuracyExpirement.size()*learingrateExpirement.size()*allExpirementsNeurons.size();
+            int k = 1;//Счетчик экспериментов
             //Запуск экспериментов по точности обучения
             for (double trainingAccuracy:
                  trainingAccuracyExpirement) {
                 //Запуск экспериментов по скорости обучения
                 for (double learningrateExp:
                      learingrateExpirement) {
-                    int k = 1;//Счетчик экспериментов
+
                     //Запуск экспериментов
                     for (List<Integer> currentExpirement :
                             allExpirementsNeurons) {
@@ -189,12 +192,12 @@ public class NNExperiments {
                         }
                         //Запуск экспериментов по количеству наблюдений
                         for (int i = 0; i < expirementparams.get("observationsPerExpirement"); i++) {
-                            System.out.println("Текущий эксперимент: " + k);
+                            System.out.println("Эксперимент " + k + " из " + expamount + " экспериментов");
                             //Запуск сети
                             NeuralNet nnet = new NeuralNet("NNetSettings.txt",
                                     0, trainingAccuracy,
                                     (expirementparams.get("trainingTimeLimit") * 1000), expirementparams.get("intialDataType"), biasOnOf,
-                                    expirementparams.get("epochCountLimit"), learningrateExp);
+                                    expirementparams.get("epochCountLimit"), learningrateExp,expirementparams.get("writeAllResults"));
                             nnet.Train();
                             nnet.Test();
                         }

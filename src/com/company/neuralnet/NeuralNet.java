@@ -36,6 +36,8 @@ public class NeuralNet {
     private double learningrate;
     //Нейрон смещения - для записи в файл с результатами
     private boolean bias;
+    //Запись весов или только 1 листа
+    private int writeAllResults;
 
     //Стандартный конструктор
     public NeuralNet() {
@@ -48,13 +50,15 @@ public class NeuralNet {
 
     //Конструктор для создания произвольного количества скрытых слоёв с заданным количеством нейронов
     public NeuralNet(String SettingsFile, Integer mode, double trainingAccuracy, int trainingTimeLimit,
-                     Integer IntialDataType, boolean bias, int epochCountLimit, double learningrate) {
-        //Задание точности, времени обучения, максимальное количество эпох, скорость обучения
+                     Integer IntialDataType, boolean bias, int epochCountLimit, double learningrate,
+                     int writeAllResults) {
+        //Задание точности, времени обучения, максимальное количество эпох, скорость обучения, записи результатов
         this.trainingAccuracy = trainingAccuracy;
         this.trainingTimeLimit = trainingTimeLimit;
         this.epochCountLimit = epochCountLimit;
         this.learningrate = learningrate;
-        this.bias=bias;
+        this.bias = bias;
+        this.writeAllResults = writeAllResults;
         input_layer = new InputLayer(IntialDataType, mode); //Инициализация входного слоя - задается отдельным классом
         fact = new double[input_layer.errorDB[1].length];//Инициализация массива фактических значений
         List<String> NeuronsOnHiddenLayers;
@@ -215,7 +219,7 @@ public class NeuralNet {
             double mse = GetMSE(errors);
             for (int j = 0; j < fact.length; ++j)
                 //System.out.print(fact[j] + " ");
-            allFactTestResult.add(fact);
+                allFactTestResult.add(fact);
             //System.out.println();
             //System.out.println("Ошибка сета = " + mse);
         }
@@ -245,39 +249,39 @@ public class NeuralNet {
             POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream("Expirements\\ExpirementResults.xls"));
             wb = new HSSFWorkbook(fs);
 
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-        //Открытие листа для записи общей ошибки тестирования
-        Sheet sheet = ((HSSFWorkbook) wb).getSheet("TotalResult");
-        //Вычисление последнего занятого столбца в листе с основными результатами
-        int rownum = 0;
-        for (Row row : sheet) {
-            rownum = row.getRowNum();
-        }
-        //Создание названия эксперимента для открытия нужного листа книги
-        String expName = "";
-        //Цикл для создания названия файла с результатами/названия строки в Excel
-        for (int i = 0; i < hidden_layers.length; i++) {
-            expName += "_" + hidden_layers[i].numofneurons;
-        }
-        expName += sheet.getLastRowNum()+"Test";//добавление номера строки для идентификации, в случае нескольких запусков одного эксперимента
-        Row row = sheet.getRow(rownum);
-        Cell cell;
-        cell = row.createCell(5);
-        cell.setCellValue(testMSE);
-        //Создание листа для записи экспериментов
-        Sheet expSheet = wb.createSheet(expName);
-        int rowCount = 0;//подсчет строк для записи
-        try {
-            //Проход по всем результатам тестирования сети
-            for (int i = 0; i < allFactTestResult.size(); i++) {
-                row = expSheet.createRow(i);
-                for (int j = 0; j < allFactTestResult.get(i).length; j++) {
+            //Открытие листа для записи общей ошибки тестирования
+            Sheet sheet = ((HSSFWorkbook) wb).getSheet("TotalResult");
+            //Вычисление последнего занятого столбца в листе с основными результатами
+            int rownum = 0;
+            for (Row row : sheet) {
+                rownum = row.getRowNum();
+            }
+            //Создание названия эксперимента для открытия нужного листа книги
+            String expName = "";
+            //Цикл для создания названия файла с результатами/названия строки в Excel
+            for (int i = 0; i < hidden_layers.length; i++) {
+                expName += "_" + hidden_layers[i].numofneurons;
+            }
+            expName += sheet.getLastRowNum() + "Test";//добавление номера строки для идентификации, в случае нескольких запусков одного эксперимента
+            Row row = sheet.getRow(rownum);
+            Cell cell;
+            cell = row.createCell(5);
+            cell.setCellValue(testMSE);
+            //Проверка необходимости записи результатов тестирования
+            if (writeAllResults < 2) {
+                //Создание листа для записи экспериментов
+                Sheet expSheet = wb.createSheet(expName);
+                int rowCount = 0;//подсчет строк для записи
 
-                    cell = row.createCell(j);
-                    cell.setCellValue(allFactTestResult.get(i)[j]);
-                    rowCount++;
+                //Проход по всем результатам тестирования сети
+                for (int i = 0; i < allFactTestResult.size(); i++) {
+                    row = expSheet.createRow(i);
+                    for (int j = 0; j < allFactTestResult.get(i).length; j++) {
+
+                        cell = row.createCell(j);
+                        cell.setCellValue(allFactTestResult.get(i)[j]);
+                        rowCount++;
+                    }
                 }
             }
             //Попытка записи файла
@@ -299,95 +303,95 @@ public class NeuralNet {
             POIFSFileSystem fs = new POIFSFileSystem(new FileInputStream("Expirements\\ExpirementResults.xls"));
             wb = new HSSFWorkbook(fs);
 
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-        //Открытие листа для записи основных результатов
-        Sheet sheet = ((HSSFWorkbook) wb).getSheet("TotalResult");
-        //Вычисление последнего занятого столбца в листе с основными результатами
-        int rownum = 0;
-        for (Row row : sheet) {
-            rownum = row.getRowNum();
-        }
-        //Создание названия эксперимента
-        String expName = "";
-        //Цикл для создания названия файла с результатами/названия строки в Excel
-        for (int i = 0; i < hidden_layers.length; i++) {
-            expName += "_" + hidden_layers[i].numofneurons;
-        }
-        Row row = sheet.createRow(rownum + 1);
-        expName += row.getRowNum();//добавление номера строки для идентификации, в случае нескольких запусков одного эксперимента
-        Cell cell = row.createCell(0);
-        cell.setCellValue(expName);
-        cell = row.createCell(1);
-        cell.setCellValue(hidden_layers[0].numofneurons);
-        cell = row.createCell(2);
-        cell.setCellValue(trainTime);
-        cell = row.createCell(3);
-        cell.setCellValue(error_list.size());
-        cell = row.createCell(4);
-        cell.setCellValue(String.valueOf(error_list.getLast()));
-        cell = row.createCell(6);
-        cell.setCellValue(trainingAccuracy);
-        cell = row.createCell(7);
-        cell.setCellValue(learningrate);
-        cell = row.createCell(8);
-        cell.setCellValue(String.valueOf(bias));
-        cell = row.createCell(9);
-        cell.setCellValue("zero-true");
-        //Запись весов скрытых слоев
-        Sheet expSheet = wb.createSheet(expName);
-        int rowsNum = 0;
-        //Вычисление количества строк, необходимых для записи. Сравнение количества связей скрытых слоев.
-        for (int i = 0; i < hidden_layers.length; i++) {
-            if (hidden_layers[i].numofneurons * hidden_layers[i].numofprevneurons > rowsNum)
-                rowsNum = hidden_layers[i].numofneurons * hidden_layers[i].numofprevneurons;
-        }
-        //Сравнение с количеством срок в коллекции ошибок
-        if (error_list.size() > rowsNum) rowsNum = error_list.size();
-        //Сравнение количества строк с количеством связей выходного уровня
-        if (output_layer.numofneurons > rowsNum) rowsNum = output_layer.numofneurons;
-        //Строка и ячейка для записи результатов эксперимента
-        Row expRow;
-        Cell expCell;
-        //Создание строк для записи весов и эволюции ошибок
-        for (int i = 0; i < rowsNum; i++)
-            expRow = expSheet.createRow(i);
-        int rowCount = 0;
-        //Блок try для записи результатов эксперимента
-        try {
-            //Проход по всем скрытым слоям, для записи весов
+
+            //Открытие листа для записи основных результатов
+            Sheet sheet = ((HSSFWorkbook) wb).getSheet("TotalResult");
+            //Вычисление последнего занятого столбца в листе с основными результатами
+            int rownum = 0;
+            for (Row row : sheet) {
+                rownum = row.getRowNum();
+            }
+            //Создание названия эксперимента
+            String expName = "";
+            //Цикл для создания названия файла с результатами/названия строки в Excel
             for (int i = 0; i < hidden_layers.length; i++) {
-                //Проход по всем нейронам
-                for (int j = 0; j < hidden_layers[i].numofneurons; j++)
+                expName += "_" + hidden_layers[i].numofneurons;
+            }
+            Row row = sheet.createRow(rownum + 1);
+            expName += "_n" + row.getRowNum();//добавление номера строки для идентификации, в случае нескольких запусков одного эксперимента
+            Cell cell = row.createCell(0);
+            cell.setCellValue(expName);
+            cell = row.createCell(1);
+            cell.setCellValue(hidden_layers[0].numofneurons);
+            cell = row.createCell(2);
+            cell.setCellValue(trainTime);
+            cell = row.createCell(3);
+            cell.setCellValue(error_list.size());
+            cell = row.createCell(4);
+            cell.setCellValue(String.valueOf(error_list.getLast()));
+            cell = row.createCell(6);
+            cell.setCellValue(trainingAccuracy);
+            cell = row.createCell(7);
+            cell.setCellValue(learningrate);
+            cell = row.createCell(8);
+            cell.setCellValue(String.valueOf(bias));
+            cell = row.createCell(9);
+            cell.setCellValue("zero-true");
+            //Проверка необходимости записи весов
+            if (writeAllResults == 0) {
+                //Запись весов скрытых слоев
+                Sheet expSheet = wb.createSheet(expName);
+                int rowsNum = 0;
+                //Вычисление количества строк, необходимых для записи. Сравнение количества связей скрытых слоев.
+                for (int i = 0; i < hidden_layers.length; i++) {
+                    if (hidden_layers[i].numofneurons * hidden_layers[i].numofprevneurons > rowsNum)
+                        rowsNum = hidden_layers[i].numofneurons * hidden_layers[i].numofprevneurons;
+                }
+                //Сравнение с количеством срок в коллекции ошибок
+                if (error_list.size() > rowsNum) rowsNum = error_list.size();
+                //Сравнение количества строк с количеством связей выходного уровня
+                if (output_layer.numofneurons > rowsNum) rowsNum = output_layer.numofneurons;
+                //Строка и ячейка для записи результатов эксперимента
+                Row expRow;
+                Cell expCell;
+                //Создание строк для записи весов и эволюции ошибок
+                for (int i = 0; i < rowsNum; i++)
+                    expRow = expSheet.createRow(i);
+                int rowCount = 0;
+                //Блок try для записи результатов эксперимента
+
+                //Проход по всем скрытым слоям, для записи весов
+                for (int i = 0; i < hidden_layers.length; i++) {
+                    //Проход по всем нейронам
+                    for (int j = 0; j < hidden_layers[i].numofneurons; j++)
+                        //Проход по всем весам (нейроны*количество предшествующих нейронов)
+                        for (int k = 0; k < hidden_layers[i].numofprevneurons; k++) {
+                            expRow = expSheet.getRow(rowCount);
+                            expCell = expRow.createCell(i + 1);
+                            expCell.setCellValue(hidden_layers[i].neurons[j].weights[k]);
+                            rowCount++;
+                        }
+                    rowCount = 0;
+                }
+                rowCount = 0; //Обнуление счетчика строк
+                //Запись весов выходного слоя
+                for (int j = 0; j < output_layer.numofneurons; j++)
                     //Проход по всем весам (нейроны*количество предшествующих нейронов)
-                    for (int k = 0; k < hidden_layers[i].numofprevneurons; k++) {
+                    for (int k = 0; k < output_layer.numofprevneurons; k++) {
                         expRow = expSheet.getRow(rowCount);
-                        expCell = expRow.createCell(i + 1);
-                        expCell.setCellValue(hidden_layers[i].neurons[j].weights[k]);
+                        expCell = expRow.createCell(hidden_layers.length + 1);
+                        expCell.setCellValue(output_layer.neurons[j].weights[k]);
                         rowCount++;
                     }
-                rowCount = 0;
-            }
-            rowCount = 0; //Обнуление счетчика строк
-            //Запись весов выходного слоя
-            for (int j = 0; j < output_layer.numofneurons; j++)
-                //Проход по всем весам (нейроны*количество предшествующих нейронов)
-                for (int k = 0; k < output_layer.numofprevneurons; k++) {
+                rowCount = 0; //Обнуление счетчика строк
+                //Запись ошибок вычислений в 0 столбец
+                for (int i = 0; i < error_list.size(); i++) {
                     expRow = expSheet.getRow(rowCount);
-                    expCell = expRow.createCell(hidden_layers.length + 1);
-                    expCell.setCellValue(output_layer.neurons[j].weights[k]);
+                    expCell = expRow.createCell(0);
+                    expCell.setCellValue(error_list.get(i));
                     rowCount++;
                 }
-            rowCount = 0; //Обнуление счетчика строк
-            //Запись ошибок вычислений в 0 столбец
-            for (int i = 0; i < error_list.size(); i++) {
-                expRow = expSheet.getRow(rowCount);
-                expCell = expRow.createCell(0);
-                expCell.setCellValue(error_list.get(i));
-                rowCount++;
             }
-
             //Попытка записи файла
             FileOutputStream fileOut = new FileOutputStream("Expirements\\ExpirementResults.xls");
             wb.write(fileOut);
